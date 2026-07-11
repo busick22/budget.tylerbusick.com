@@ -1,7 +1,7 @@
 // The heart of the app: this month's spending against each category's limit.
 
 import { useMemo, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { Settings, Plus, Pencil, Gauge } from 'lucide-react'
 import MonthSwitcher from '../../components/MonthSwitcher.jsx'
 import CategoryModal from './CategoryModal.jsx'
@@ -15,8 +15,15 @@ import './dashboard.css'
 export default function DashboardPage() {
   const { categories } = useCategories()
   const { spentByCategory } = useTransactions()
+  const navigate = useNavigate()
   const [month, setMonth] = useState(currentMonthKey)
   const [editing, setEditing] = useState(null) // null | 'new' | category object
+
+  // Jump to the Spending page filtered to one category (or Uncategorized) for
+  // the month currently shown here.
+  function openInSpending(categoryId) {
+    navigate('/spending', { state: { categoryId, month } })
+  }
 
   const spent = useMemo(() => spentByCategory(month), [spentByCategory, month])
 
@@ -65,6 +72,7 @@ export default function DashboardPage() {
               category={cat}
               spentCents={spent[cat.id] ?? 0}
               onEdit={() => setEditing(cat)}
+              onOpen={() => openInSpending(cat.id)}
             />
           ))}
 
@@ -87,7 +95,11 @@ export default function DashboardPage() {
         {uncategorized > 0 && (
           <p className="dash-uncat">
             <span className="amount">{formatCents(uncategorized)}</span> this month is
-            uncategorized — assign categories on the <Link to="/spending">Spending</Link> page.
+            uncategorized —{' '}
+            <Link to="/spending" state={{ categoryId: 'uncategorized', month }}>
+              assign categories
+            </Link>
+            .
           </p>
         )}
       </div>
@@ -102,7 +114,7 @@ export default function DashboardPage() {
   )
 }
 
-function GaugeCard({ category, spentCents, onEdit }) {
+function GaugeCard({ category, spentCents, onEdit, onOpen }) {
   const { limitCents } = category
   const hex = colorHex(category.color)
   const hasLimit = limitCents > 0
@@ -116,11 +128,28 @@ function GaugeCard({ category, spentCents, onEdit }) {
       data-over={over}
       data-near={near}
       style={{ '--cat': hex }}
+      role="button"
+      tabIndex={0}
+      onClick={onOpen}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault()
+          onOpen()
+        }
+      }}
+      title={`See ${category.name} transactions`}
     >
       <div className="dash-gauge-head">
         <span className="dash-gauge-dot" aria-hidden="true" />
         <h3>{category.name}</h3>
-        <button className="icon-btn" aria-label={`Edit ${category.name}`} onClick={onEdit}>
+        <button
+          className="icon-btn"
+          aria-label={`Edit ${category.name}`}
+          onClick={(e) => {
+            e.stopPropagation()
+            onEdit()
+          }}
+        >
           <Pencil size={14} />
         </button>
       </div>

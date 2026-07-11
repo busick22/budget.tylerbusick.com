@@ -7,8 +7,82 @@
   flex: none;
 }
 
+/* --- Toolbar: view toggle + category filter ---------------------------------- */
+
+.spend-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex: none;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+.spend-viewtoggle {
+  display: inline-flex;
+  padding: 3px;
+  border-radius: var(--radius-md);
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+}
+
+.spend-viewtoggle button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: var(--radius-sm);
+  font-size: var(--text-sm);
+  font-weight: 550;
+  color: var(--text-mid);
+  transition:
+    background var(--speed-fast) var(--ease-out),
+    color var(--speed-fast) var(--ease-out);
+}
+
+.spend-viewtoggle button[data-active='true'] {
+  background: var(--surface);
+  color: var(--text);
+  box-shadow: var(--shadow-1);
+}
+
+.spend-viewtoggle svg {
+  flex: none;
+}
+
+.spend-filter.field {
+  width: auto;
+  min-width: 168px;
+  max-width: 220px;
+  padding: 8px 12px;
+  font-size: var(--text-sm);
+}
+
 .spend-day {
   margin-bottom: 18px;
+}
+
+/* By-category section header: color dot + name + subtotal. */
+.spend-cat-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.spend-cat-dot {
+  width: 9px;
+  height: 9px;
+  flex: none;
+  border-radius: 3px;
+  background: var(--cat);
+}
+
+.spend-cat-total {
+  margin-left: auto;
+  color: var(--text-mid);
+  font-weight: 600;
+  letter-spacing: 0;
 }
 
 .spend-day .panel-title {

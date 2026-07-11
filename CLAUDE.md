@@ -88,6 +88,34 @@ language:
 
 ## Current focus
 
+- **2026-07-11 — Category review tools added (see & fix categorizations).
+  Built + verified in-browser.** Answers the owner's "will I see this
+  categorization / fix miscategorizations in the app?" — the merchant-rules
+  MEMORY stays Codex's repo file (kept out of the app to avoid two-source
+  drift), but individual transactions are now easy to review by category:
+  - **Spending page:** a sub-toolbar with a **By day / By category** view
+    toggle + a **category filter** dropdown (All / Uncategorized / each
+    category). By-category view sections transactions by their category
+    with color dot + subtotal, Uncategorized sorted last so it stands out.
+    Filter narrows the list; header shows the filtered count/total (and the
+    category name when filtered). Everything still edits via row-click →
+    TransactionModal (category change was already possible — this just makes
+    finding mistakes easy).
+  - **Dashboard drill-in:** gauge cards are now clickable (role=button +
+    keyboard) → navigate to Spending pre-filtered to that category for the
+    shown month, via router `location.state {categoryId, month}`. The edit
+    pencil `stopPropagation`s so it still edits. The uncategorized nudge
+    links straight to the Uncategorized filter.
+  - **Deliberately NOT built:** an in-app editor for the merchant→category
+    rules memory — that would fight Codex's `import/merchant-rules.md` and
+    create a sync problem. If the owner later wants the app to be the single
+    source for rules (Firestore) with an exported file the command reads,
+    that's a bigger coordinated change — flagged, not started.
+  - **Verified** (fixtures since removed; grep clean): Dashboard Grocery
+    gauge → Spending filtered to Grocery ($301.24, 2 rows ✓); By-category
+    view subtotals (Gas $81.09, Restaurants $71.55 ✓) with Uncategorized
+    last; filter dropdown; mobile toolbar wraps cleanly. Lint + build clean,
+    zero console errors, committed.
 - **2026-07-11 — Free "prepared file" import added (the owner's chosen path;
   avoids API credits entirely). Built + verified in-browser.** Rationale:
   the owner already pays for Claude Code / Codex, so the AI categorizing

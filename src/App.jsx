@@ -5,7 +5,7 @@ import SignInPage from './features/auth/SignInPage.jsx'
 import DashboardPage from './features/dashboard/DashboardPage.jsx'
 import SpendingPage from './features/spending/SpendingPage.jsx'
 import BillsPage from './features/bills/BillsPage.jsx'
-import GoalsPage from './features/goals/GoalsPage.jsx'
+import IncomePage from './features/income/IncomePage.jsx'
 import DebtPage from './features/debt/DebtPage.jsx'
 import SettingsPage from './features/settings/SettingsPage.jsx'
 
@@ -44,7 +44,7 @@ export default function App() {
         <Route index element={<DashboardPage />} />
         <Route path="spending" element={<SpendingPage />} />
         <Route path="bills" element={<BillsPage />} />
-        <Route path="goals" element={<GoalsPage />} />
+        <Route path="income" element={<IncomePage />} />
         <Route path="debt" element={<DebtPage />} />
         <Route path="settings" element={<SettingsPage />} />
         <Route path="*" element={<Navigate to="/" replace />} />

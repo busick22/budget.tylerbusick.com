@@ -429,6 +429,44 @@
   gap: 14px;
 }
 
+/* Expense / Income segmented toggle at the top of the modal. */
+.txmodal-typetoggle {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px;
+  padding: 4px;
+  border-radius: var(--radius-md);
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+}
+
+.txmodal-typetoggle button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 9px;
+  border-radius: var(--radius-sm);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--text-mid);
+  transition:
+    background var(--speed-fast) var(--ease-out),
+    color var(--speed-fast) var(--ease-out);
+}
+
+.txmodal-typetoggle button[data-kind='expense'][data-active='true'] {
+  background: var(--surface);
+  color: var(--money-out);
+  box-shadow: var(--shadow-1);
+}
+
+.txmodal-typetoggle button[data-kind='income'][data-active='true'] {
+  background: var(--surface);
+  color: var(--money-in);
+  box-shadow: var(--shadow-1);
+}
+
 .txmodal-row {
   display: grid;
   grid-template-columns: 1fr 1fr;

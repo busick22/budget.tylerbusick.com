@@ -1,18 +1,21 @@
-// Add or edit one transaction: what, how much, when, which category.
+// Add or edit one transaction. The Expense/Income toggle at the top decides
+// whether it's money out (counts against a spending category's limit) or money
+// in (grouped under an income source). Amount is always entered positive.
 
 import { useState } from 'react'
-import { Trash2 } from 'lucide-react'
+import { Trash2, ArrowUpRight, ArrowDownLeft } from 'lucide-react'
 import Modal from '../../components/Modal.jsx'
 import { useCategories } from '../../state/CategoriesContext.jsx'
 import { useTransactions } from '../../state/TransactionsContext.jsx'
 import { parseToCents, centsToInput } from '../../lib/money.js'
 import { todayKey } from '../../lib/dates.js'
 
-export default function TransactionModal({ transaction, defaultDate, onClose }) {
-  const { categories } = useCategories()
+export default function TransactionModal({ transaction, defaultDate, defaultType, onClose }) {
+  const { expenseCategories, incomeSources } = useCategories()
   const { addTransaction, updateTransaction, deleteTransaction } = useTransactions()
   const isNew = !transaction
 
+  const [type, setType] = useState(transaction?.type ?? defaultType ?? 'expense')
   const [description, setDescription] = useState(transaction?.description ?? '')
   const [amountText, setAmountText] = useState(
     transaction ? centsToInput(transaction.amountCents) : '',
@@ -24,11 +27,21 @@ export default function TransactionModal({ transaction, defaultDate, onClose }) 
   const [busy, setBusy] = useState(false)
   const [confirmDelete, setConfirmDelete] = useState(false)
 
+  const isIncome = type === 'income'
+  // Switching type clears a category chosen from the other list, so an income
+  // source can't stick to an expense (or vice-versa).
+  function switchType(next) {
+    setType(next)
+    setCategoryId('')
+  }
+
+  const options = isIncome ? incomeSources : expenseCategories
+
   async function onSave(event) {
     event.preventDefault()
     const trimmed = description.trim()
     if (!trimmed) {
-      setError('What was this for? Give it a short description.')
+      setError(isIncome ? 'Where did this come from? Add a short description.' : 'What was this for? Give it a short description.')
       return
     }
     const amountCents = parseToCents(amountText)
@@ -47,6 +60,7 @@ export default function TransactionModal({ transaction, defaultDate, onClose }) 
       date,
       categoryId: categoryId || null,
       note: note.trim(),
+      type,
     }
     try {
       if (isNew) await addTransaction(data)
@@ -75,19 +89,40 @@ export default function TransactionModal({ transaction, defaultDate, onClose }) 
 
   return (
     <Modal onClose={onClose}>
-      <h3>{isNew ? 'Add transaction' : 'Edit transaction'}</h3>
+      <h3>{isNew ? 'Add' : 'Edit'} {isIncome ? 'income' : 'transaction'}</h3>
 
       <form onSubmit={onSave} className="txmodal-form">
+        <div className="txmodal-typetoggle" role="group" aria-label="Type">
+          <button
+            type="button"
+            data-active={!isIncome}
+            data-kind="expense"
+            onClick={() => switchType('expense')}
+          >
+            <ArrowUpRight size={15} aria-hidden="true" />
+            Expense
+          </button>
+          <button
+            type="button"
+            data-active={isIncome}
+            data-kind="income"
+            onClick={() => switchType('income')}
+          >
+            <ArrowDownLeft size={15} aria-hidden="true" />
+            Income
+          </button>
+        </div>
+
         <div>
           <label className="field-label" htmlFor="tx-desc">
-            Description
+            {isIncome ? 'Source / description' : 'Description'}
           </label>
           <input
             id="tx-desc"
             className="field"
             value={description}
             onChange={(e) => setDescription(e.target.value)}
-            placeholder="Hy-Vee"
+            placeholder={isIncome ? 'Paycheck' : 'Hy-Vee'}
             autoFocus={isNew}
           />
         </div>
@@ -122,7 +157,7 @@ export default function TransactionModal({ transaction, defaultDate, onClose }) 
 
         <div>
           <label className="field-label" htmlFor="tx-category">
-            Category
+            {isIncome ? 'Source' : 'Category'}
           </label>
           <select
             id="tx-category"
@@ -130,8 +165,8 @@ export default function TransactionModal({ transaction, defaultDate, onClose }) 
             value={categoryId}
             onChange={(e) => setCategoryId(e.target.value)}
           >
-            <option value="">Uncategorized</option>
-            {categories.map((c) => (
+            <option value="">{isIncome ? 'Unassigned' : 'Uncategorized'}</option>
+            {options.map((c) => (
               <option key={c.id} value={c.id}>
                 {c.name}
               </option>
@@ -148,7 +183,7 @@ export default function TransactionModal({ transaction, defaultDate, onClose }) 
             className="field"
             value={note}
             onChange={(e) => setNote(e.target.value)}
-            placeholder="Split with Sarah"
+            placeholder={isIncome ? 'Bonus' : 'Split with Sarah'}
           />
         </div>
 

@@ -15,7 +15,8 @@ import { parsePreparedFile, categorizeCsv, MAX_IMPORT_BYTES } from '../../lib/im
 import { formatCents } from '../../lib/money.js'
 
 export default function ImportModal({ onClose }) {
-  const { categories } = useCategories()
+  // Imports land as expenses, so use the expense category list here.
+  const { expenseCategories } = useCategories()
   const { addTransaction } = useTransactions()
 
   const [step, setStep] = useState('pick') // pick | working | review
@@ -43,7 +44,7 @@ export default function ImportModal({ onClose }) {
     setFileName(file.name)
     try {
       const text = await file.text()
-      toReview(parsePreparedFile(text, categories))
+      toReview(parsePreparedFile(text, expenseCategories))
     } catch (err) {
       setError(err.message || 'Reading the file failed.')
     }
@@ -63,7 +64,7 @@ export default function ImportModal({ onClose }) {
     try {
       const text = await file.text()
       if (!text.trim()) throw new Error('That file looks empty.')
-      const transactions = await categorizeCsv(text, categories)
+      const transactions = await categorizeCsv(text, expenseCategories)
       if (transactions.length === 0) {
         throw new Error('No transactions were found in that file — is it the right export?')
       }
@@ -188,7 +189,7 @@ export default function ImportModal({ onClose }) {
                   disabled={!row.include}
                 >
                   <option value="">Uncategorized</option>
-                  {categories.map((c) => (
+                  {expenseCategories.map((c) => (
                     <option key={c.id} value={c.id}>
                       {c.name}
                     </option>

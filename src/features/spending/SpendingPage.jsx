@@ -25,7 +25,7 @@ import './spending.css'
 const UNCATEGORIZED = 'uncategorized'
 
 export default function SpendingPage() {
-  const { categories, byId } = useCategories()
+  const { expenseCategories, byId } = useCategories()
   const { forMonth, deleteMany, setCategoryMany } = useTransactions()
   const location = useLocation()
 
@@ -42,7 +42,11 @@ export default function SpendingPage() {
   const [confirmDelete, setConfirmDelete] = useState(false)
   const [busy, setBusy] = useState(false)
 
-  const monthTx = useMemo(() => forMonth(month), [forMonth, month])
+  // Spending is expenses only — income has its own page.
+  const monthTx = useMemo(
+    () => forMonth(month).filter((t) => (t.type ?? 'expense') === 'expense'),
+    [forMonth, month],
+  )
 
   const filtered = useMemo(() => {
     if (filterCat === 'all') return monthTx
@@ -204,7 +208,7 @@ export default function SpendingPage() {
             >
               <option value="all">All categories</option>
               <option value={UNCATEGORIZED}>Uncategorized</option>
-              {categories.map((c) => (
+              {expenseCategories.map((c) => (
                 <option key={c.id} value={c.id}>
                   {c.name}
                 </option>
@@ -301,7 +305,7 @@ export default function SpendingPage() {
               Set category…
             </option>
             <option value={UNCATEGORIZED}>Uncategorized</option>
-            {categories.map((c) => (
+            {expenseCategories.map((c) => (
               <option key={c.id} value={c.id}>
                 {c.name}
               </option>

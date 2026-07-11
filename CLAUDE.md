@@ -1,7 +1,7 @@
 # Budget
 
 A personal budgeting PWA with five areas: **Dashboard, Spending, Bills,
-Goals, Debt**. One Firebase owner account. The core method is **category
+Income, Debt** (savings goals live as a section on Income). One Firebase owner account. The core method is **category
 limits**: the owner sets his own categories with a monthly limit each, and
 the dashboard shows spend vs. limit. Transactions come in two ways: typed by
 hand, or via **CSV upload where Claude (the Anthropic API) normalizes and
@@ -88,6 +88,51 @@ language:
 
 ## Current focus
 
+- **2026-07-11 — Income, income sources & accounts added; app is now a full
+  monthly money picture (in/out/net/balance), not spending-only. Built +
+  verified in-browser.** Owner-chosen shape: named accounts (manual
+  balances), income grouped by SOURCE, goals RELOCATED under Income (Goals
+  tab replaced by Income). Big multi-part change:
+  - **Data model:** transactions gained `type: 'income' | 'expense'`
+    (missing = expense, back-compat). `spentByCategory` now EXCLUDES income
+    (so a paycheck never inflates a gauge); new `incomeBySource(month)`.
+    Categories gained `kind: 'expense' | 'income'` (missing = expense) with
+    derived `expenseCategories` / `incomeSources`; income sources reuse the
+    categories collection (no limit). New **AccountsContext**
+    (`users/{uid}/accounts`: name, balanceCents, color) — balances are
+    MANUAL (a number you set from your bank), deliberately NOT computed from
+    transactions (avoids bank-vs-app drift; see the file comment). Providers
+    wired: Accounts→Categories→Transactions→Bills→Goals→Debts.
+  - **Modals:** TransactionModal got an Expense/Income segmented toggle
+    (switching clears the cross-list category; income shows a "Source"
+    picker of incomeSources; `defaultType` prop). CategoryModal generalized
+    with a `kind` prop (hides the limit for income sources). New
+    AccountModal (name, balance, color; balance may be negative).
+  - **UI:** nav Goals→**Income** (Wallet icon, /income route). New
+    **IncomePage**: month income grouped by source (subtotals, +green
+    amounts), "Add income", "Source" (manage income sources via
+    CategoryModal kind=income), and the relocated **GoalsSection** (goals
+    were extracted from GoalsPage into `goals/GoalsSection.jsx`;
+    `GoalsPage.jsx` is now just a re-export). **Dashboard** grew a Balance
+    strip (accounts + total, click to edit) and a cash-flow line
+    (Income · Spent · **Net**), gauges now use expenseCategories.
+    **Spending** is expenses-only (filters type=expense; filter dropdown
+    uses expenseCategories). Import review uses expenseCategories.
+    New tokens: `--accent-income`, `--money-in`, `--money-out`.
+  - **Verified** (fixtures since removed; grep clean): Dashboard balance
+    $9,740.75 (Checking+Savings ✓), cash-flow Income $6,460 / Spent $343.34
+    / Net +$6,116.66 (all math ✓); Income page grouped Paycheck $6,400 (2×
+    $3,200) + Side gig $60 with goals section below; Spending excludes
+    income ($343.34, no Employer/Lawn rows); modal toggle swaps
+    Category↔Source and expense↔income option lists. Lint + build clean,
+    zero console errors, committed.
+  - **DEFERRED (follow-up):** income via IMPORT. The import still brings in
+    expenses only — money-in rows stay auto-unticked/excluded (ImportModal
+    uses expenseCategories). Wiring detected money-in rows to save as
+    income (with a source picker in the review screen) is the next natural
+    step for "upload all statements, see in AND out." Also: the money-in
+    row, if ticked today, saves as an expense (pre-existing) — fix when
+    doing income-import.
 - **2026-07-11 — Bulk select added to Spending (owner hit the "imported
   everything uncategorized, don't want to delete one-by-one" problem).
   Built + verified in-browser.** A "Select" button in the Spending toolbar

@@ -1,6 +1,27 @@
 /* Goals: progress cards with quick add-money. Reuses the dashboard's
    gauge-bar and dot styles (dash-gauge-bar / dash-gauge-fill / dash-gauge-dot). */
 
+/* The section wrapper on the Income page. */
+.goals-section {
+  margin-top: 26px;
+}
+
+.goals-section-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.goals-section-sub {
+  margin-left: 8px;
+  text-transform: none;
+  letter-spacing: 0;
+  color: var(--text-mid);
+  font-weight: 500;
+}
+
 .goals-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));

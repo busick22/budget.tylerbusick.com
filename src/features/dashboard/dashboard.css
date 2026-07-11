@@ -35,7 +35,114 @@
   color: var(--page-accent, var(--accent));
 }
 
-/* --- Summary strip ------------------------------------------------------------ */
+/* --- Accounts / balance ------------------------------------------------------- */
+
+.dash-accounts {
+  padding: 16px 20px;
+  margin-bottom: 12px;
+}
+
+.dash-accounts-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.dash-balance {
+  font-size: var(--text-xl);
+  font-family: var(--font-display);
+}
+
+.dash-accounts-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.dash-account {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+  background: var(--surface-2);
+  font-size: var(--text-sm);
+  transition:
+    border-color var(--speed-fast) var(--ease-out),
+    background var(--speed-fast) var(--ease-out);
+}
+
+.dash-account:hover {
+  border-color: var(--border-strong);
+  background: var(--surface-3);
+}
+
+.dash-account-dot {
+  width: 8px;
+  height: 8px;
+  flex: none;
+  border-radius: 3px;
+  background: var(--cat);
+}
+
+.dash-account-name {
+  font-weight: 550;
+  color: var(--text);
+}
+
+.dash-account-bal {
+  color: var(--text-mid);
+  font-weight: 600;
+}
+
+.dash-account-add {
+  color: var(--text-dim);
+  font-weight: 550;
+  border-style: dashed;
+  gap: 6px;
+}
+
+.dash-account-add:hover {
+  color: var(--accent);
+  border-color: var(--accent);
+}
+
+/* --- Cash flow: income vs spending -------------------------------------------- */
+
+.dash-cashflow {
+  display: flex;
+  gap: 10px;
+  padding: 16px 20px;
+  margin-bottom: 12px;
+}
+
+.dash-cashflow > div {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.dash-cashflow strong {
+  font-size: var(--text-lg);
+}
+
+.dash-in {
+  color: var(--money-in);
+}
+
+.dash-out {
+  color: var(--money-out);
+}
+
+.dash-cashflow [data-negative='true'] strong {
+  color: var(--money-out);
+}
+
+/* --- Summary strip (spending vs limits) --------------------------------------- */
 
 .dash-summary {
   display: flex;

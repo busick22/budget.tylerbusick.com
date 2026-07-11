@@ -58,23 +58,39 @@ export function TransactionsProvider({ children }) {
       transactions,
       loading,
 
-      /** All transactions inside one 'YYYY-MM' month, newest first. */
+      /** All transactions inside one 'YYYY-MM' month, newest first. A missing
+       *  `type` predates income support → treat as an expense. */
       forMonth(monthKey) {
         return transactions.filter((t) => t.date.startsWith(monthKey))
       },
 
-      /** Cents spent per category id for a month: { catId: cents, ... } */
+      /** Cents SPENT per category id for a month — expenses only, so income
+       *  never inflates a spending gauge. { catId: cents, ... } */
       spentByCategory(monthKey) {
         const totals = {}
         for (const t of transactions) {
           if (!t.date.startsWith(monthKey)) continue
+          if ((t.type ?? 'expense') === 'income') continue
           const key = t.categoryId ?? 'uncategorized'
           totals[key] = (totals[key] ?? 0) + t.amountCents
         }
         return totals
       },
 
-      async addTransaction({ date, description, amountCents, categoryId, note }) {
+      /** Cents of INCOME per source id for a month: { sourceId: cents, ... }.
+       *  Income with no source is bucketed under 'unassigned'. */
+      incomeBySource(monthKey) {
+        const totals = {}
+        for (const t of transactions) {
+          if (!t.date.startsWith(monthKey)) continue
+          if ((t.type ?? 'expense') !== 'income') continue
+          const key = t.categoryId ?? 'unassigned'
+          totals[key] = (totals[key] ?? 0) + t.amountCents
+        }
+        return totals
+      },
+
+      async addTransaction({ date, description, amountCents, categoryId, note, type }) {
         const ref = collection(db, 'users', user.uid, 'transactions')
         await addDoc(ref, {
           date,
@@ -82,6 +98,7 @@ export function TransactionsProvider({ children }) {
           amountCents,
           categoryId: categoryId ?? null,
           note: note ?? '',
+          type: type ?? 'expense',
           createdAt: serverTimestamp(),
         })
       },

@@ -1,4 +1,7 @@
-// Create or edit one spending category: name, monthly limit, color.
+// Create or edit a category. Two kinds:
+//   - expense (default): a spending category with a monthly limit.
+//   - income: a source of income (Paycheck, Side gig…) — no limit shown.
+// The `kind` prop is set when NEW; editing keeps the existing kind.
 
 import { useState } from 'react'
 import { Trash2 } from 'lucide-react'
@@ -7,9 +10,12 @@ import { useCategories } from '../../state/CategoriesContext.jsx'
 import { parseToCents, centsToInput } from '../../lib/money.js'
 import { CATEGORY_COLORS, nextFreeColor } from '../../lib/palette.js'
 
-export default function CategoryModal({ category, onClose }) {
+export default function CategoryModal({ category, kind = 'expense', onClose }) {
   const { categories, addCategory, updateCategory, deleteCategory } = useCategories()
   const isNew = !category
+  const effectiveKind = category?.kind ?? kind
+  const isIncome = effectiveKind === 'income'
+  const noun = isIncome ? 'source' : 'category'
 
   const [name, setName] = useState(category?.name ?? '')
   const [limitText, setLimitText] = useState(
@@ -26,18 +32,21 @@ export default function CategoryModal({ category, onClose }) {
     event.preventDefault()
     const trimmed = name.trim()
     if (!trimmed) {
-      setError('Give the category a name.')
+      setError(`Give the ${noun} a name.`)
       return
     }
-    // Empty limit = 0 = "just track it" (spend shows, no gauge).
-    const limitCents = limitText.trim() === '' ? 0 : parseToCents(limitText)
-    if (limitCents === null || limitCents < 0) {
-      setError('The limit should be an amount like 450 or 62.50.')
-      return
+    // Income sources have no limit. For expenses, empty = 0 = "just track".
+    let limitCents = 0
+    if (!isIncome) {
+      limitCents = limitText.trim() === '' ? 0 : parseToCents(limitText)
+      if (limitCents === null || limitCents < 0) {
+        setError('The limit should be an amount like 450 or 62.50.')
+        return
+      }
     }
     setBusy(true)
     try {
-      if (isNew) await addCategory({ name: trimmed, limitCents, color })
+      if (isNew) await addCategory({ name: trimmed, limitCents, color, kind: effectiveKind })
       else await updateCategory(category.id, { name: trimmed, limitCents, color })
       onClose()
     } catch (err) {
@@ -61,9 +70,13 @@ export default function CategoryModal({ category, onClose }) {
     }
   }
 
+  const titleNoun = isIncome ? 'source' : 'category'
+
   return (
     <Modal onClose={onClose}>
-      <h3>{isNew ? 'New category' : 'Edit category'}</h3>
+      <h3>
+        {isNew ? 'New' : 'Edit'} {titleNoun}
+      </h3>
 
       <form onSubmit={onSave} className="catmodal-form">
         <div>
@@ -75,28 +88,30 @@ export default function CategoryModal({ category, onClose }) {
             className="field"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            placeholder="Groceries"
+            placeholder={isIncome ? 'Paycheck' : 'Groceries'}
             autoFocus={isNew}
           />
         </div>
 
-        <div>
-          <label className="field-label" htmlFor="cat-limit">
-            Monthly limit
-          </label>
-          <input
-            id="cat-limit"
-            className="field amount"
-            inputMode="decimal"
-            value={limitText}
-            onChange={(e) => setLimitText(e.target.value)}
-            placeholder="450 — leave empty to just track"
-          />
-        </div>
+        {!isIncome && (
+          <div>
+            <label className="field-label" htmlFor="cat-limit">
+              Monthly limit
+            </label>
+            <input
+              id="cat-limit"
+              className="field amount"
+              inputMode="decimal"
+              value={limitText}
+              onChange={(e) => setLimitText(e.target.value)}
+              placeholder="450 — leave empty to just track"
+            />
+          </div>
+        )}
 
         <div>
           <span className="field-label">Color</span>
-          <div className="catmodal-swatches" role="radiogroup" aria-label="Category color">
+          <div className="catmodal-swatches" role="radiogroup" aria-label={`${noun} color`}>
             {CATEGORY_COLORS.map((c) => (
               <button
                 key={c.key}
@@ -116,8 +131,8 @@ export default function CategoryModal({ category, onClose }) {
         {error && <p className="error-note">{error}</p>}
         {confirmDelete && (
           <p className="error-note">
-            Delete “{category.name}”? Its transactions stay, shown as
-            Uncategorized. Click Delete again to confirm.
+            Delete “{category.name}”? Its transactions stay, shown as{' '}
+            {isIncome ? 'unassigned' : 'Uncategorized'}. Click Delete again to confirm.
           </p>
         )}
 

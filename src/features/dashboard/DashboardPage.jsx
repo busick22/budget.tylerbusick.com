@@ -1,10 +1,13 @@
-// The heart of the app: this month's spending against each category's limit.
+// The heart of the app: your accounts, this month's money in vs. out, and
+// spending against each category's limit — all in one place.
 
 import { useMemo, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { Settings, Plus, Pencil, Gauge } from 'lucide-react'
+import { Settings, Plus, Pencil, Gauge, Landmark } from 'lucide-react'
 import MonthSwitcher from '../../components/MonthSwitcher.jsx'
 import CategoryModal from './CategoryModal.jsx'
+import AccountModal from './AccountModal.jsx'
+import { useAccounts } from '../../state/AccountsContext.jsx'
 import { useCategories } from '../../state/CategoriesContext.jsx'
 import { useTransactions } from '../../state/TransactionsContext.jsx'
 import { currentMonthKey } from '../../lib/dates.js'
@@ -13,11 +16,13 @@ import { colorHex } from '../../lib/palette.js'
 import './dashboard.css'
 
 export default function DashboardPage() {
-  const { categories } = useCategories()
-  const { spentByCategory } = useTransactions()
+  const { accounts, totalBalance } = useAccounts()
+  const { expenseCategories } = useCategories()
+  const { spentByCategory, incomeBySource } = useTransactions()
   const navigate = useNavigate()
   const [month, setMonth] = useState(currentMonthKey)
   const [editing, setEditing] = useState(null) // null | 'new' | category object
+  const [editingAccount, setEditingAccount] = useState(null) // null | 'new' | account
 
   // Jump to the Spending page filtered to one category (or Uncategorized) for
   // the month currently shown here.
@@ -26,9 +31,12 @@ export default function DashboardPage() {
   }
 
   const spent = useMemo(() => spentByCategory(month), [spentByCategory, month])
+  const income = useMemo(() => incomeBySource(month), [incomeBySource, month])
 
   const totalSpent = Object.values(spent).reduce((a, b) => a + b, 0)
-  const totalLimit = categories.reduce((a, c) => a + c.limitCents, 0)
+  const totalIncome = Object.values(income).reduce((a, b) => a + b, 0)
+  const net = totalIncome - totalSpent
+  const totalLimit = expenseCategories.reduce((a, c) => a + c.limitCents, 0)
   const uncategorized = spent.uncategorized ?? 0
 
   return (
@@ -36,7 +44,7 @@ export default function DashboardPage() {
       <header className="page-head">
         <h1 className="page-title">
           Dashboard
-          <small>Spending vs. your limits</small>
+          <small>Your month at a glance</small>
         </h1>
         <div className="dash-head-actions">
           <MonthSwitcher month={month} onChange={setMonth} />
@@ -48,7 +56,52 @@ export default function DashboardPage() {
       </header>
 
       <div className="page-scroll">
-        {categories.length > 0 && (
+        {/* Accounts / balance */}
+        <div className="dash-accounts card">
+          <div className="dash-accounts-head">
+            <span className="panel-title">
+              <Landmark size={13} aria-hidden="true" />
+              Balance
+            </span>
+            <strong className="amount dash-balance">{formatCents(totalBalance)}</strong>
+          </div>
+          <div className="dash-accounts-list">
+            {accounts.map((acc) => (
+              <button
+                key={acc.id}
+                className="dash-account"
+                onClick={() => setEditingAccount(acc)}
+                style={{ '--cat': colorHex(acc.color) }}
+              >
+                <span className="dash-account-dot" aria-hidden="true" />
+                <span className="dash-account-name">{acc.name}</span>
+                <span className="amount dash-account-bal">{formatCents(acc.balanceCents)}</span>
+              </button>
+            ))}
+            <button className="dash-account dash-account-add" onClick={() => setEditingAccount('new')}>
+              <Plus size={14} aria-hidden="true" />
+              {accounts.length === 0 ? 'Add an account' : 'Account'}
+            </button>
+          </div>
+        </div>
+
+        {/* Cash flow: money in vs out this month */}
+        <div className="dash-cashflow card">
+          <div>
+            <span className="panel-title">Income</span>
+            <strong className="amount dash-in">{formatCents(totalIncome)}</strong>
+          </div>
+          <div>
+            <span className="panel-title">Spent</span>
+            <strong className="amount dash-out">{formatCents(totalSpent)}</strong>
+          </div>
+          <div data-negative={net < 0}>
+            <span className="panel-title">Net</span>
+            <strong className="amount">{net >= 0 ? '+' : ''}{formatCents(net)}</strong>
+          </div>
+        </div>
+
+        {expenseCategories.length > 0 && (
           <div className="dash-summary card">
             <div>
               <span className="panel-title">Spent</span>
@@ -66,7 +119,7 @@ export default function DashboardPage() {
         )}
 
         <div className="dash-grid">
-          {categories.map((cat) => (
+          {expenseCategories.map((cat) => (
             <GaugeCard
               key={cat.id}
               category={cat}
@@ -78,11 +131,11 @@ export default function DashboardPage() {
 
           <button className="card dash-add" onClick={() => setEditing('new')}>
             <Plus aria-hidden="true" />
-            {categories.length === 0 ? 'Set up your first category' : 'New category'}
+            {expenseCategories.length === 0 ? 'Set up your first category' : 'New category'}
           </button>
         </div>
 
-        {categories.length === 0 && (
+        {expenseCategories.length === 0 && (
           <div className="empty-state">
             <Gauge aria-hidden="true" />
             <p>
@@ -108,6 +161,12 @@ export default function DashboardPage() {
         <CategoryModal
           category={editing === 'new' ? null : editing}
           onClose={() => setEditing(null)}
+        />
+      )}
+      {editingAccount && (
+        <AccountModal
+          account={editingAccount === 'new' ? null : editingAccount}
+          onClose={() => setEditingAccount(null)}
         />
       )}
     </div>

@@ -45,8 +45,13 @@
   --accent-dashboard: #3ecf8e;
   --accent-spending: #f5b453;
   --accent-bills: #8f9cf7;
+  --accent-income: #38cfe0;
   --accent-goals: #38cfe0;
   --accent-debt: #f2718a;
+
+  /* Semantic money colors — income (in) vs expense (out). */
+  --money-in: #3ecf8e;
+  --money-out: #f2718a;
 }
 
 /* --- Dark (default) -------------------------------------------------------- */
@@ -125,6 +130,10 @@
   --accent-dashboard: #0f9d63;
   --accent-spending: #c07f16;
   --accent-bills: #5966d6;
+  --accent-income: #0e9db2;
   --accent-goals: #0e9db2;
   --accent-debt: #d64562;
+
+  --money-in: #0f9d63;
+  --money-out: #d64562;
 }

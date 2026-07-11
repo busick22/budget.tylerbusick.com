@@ -1,6 +1,9 @@
-// The owner's spending categories, each with a monthly limit.
+// The owner's categories. Two flavors, distinguished by `kind`:
+//   - 'expense' (default): a spending category with a monthly limit.
+//   - 'income':  a source of income (Paycheck, Side gig…) — no limit.
+// Both live in the same collection; each surface filters to the kind it needs.
 // Firestore: users/{uid}/categories/{id} →
-//   { name, limitCents (0 = just track, no limit), color (palette key), createdAt }
+//   { name, limitCents (0 = just track), color (palette key), kind, createdAt }
 
 import { createContext, useContext, useEffect, useMemo, useState } from 'react'
 import {
@@ -44,18 +47,36 @@ export function CategoriesProvider({ children }) {
     )
   }, [user])
 
+  // A category with no `kind` predates income support → treat as expense.
+  const expenseCategories = useMemo(
+    () => categories.filter((c) => (c.kind ?? 'expense') === 'expense'),
+    [categories],
+  )
+  const incomeSources = useMemo(
+    () => categories.filter((c) => c.kind === 'income'),
+    [categories],
+  )
+
   const value = useMemo(
     () => ({
       categories,
+      expenseCategories,
+      incomeSources,
       loading,
 
       byId(id) {
         return categories.find((c) => c.id === id) ?? null
       },
 
-      async addCategory({ name, limitCents, color }) {
+      async addCategory({ name, limitCents, color, kind }) {
         const ref = collection(db, 'users', user.uid, 'categories')
-        await addDoc(ref, { name, limitCents, color, createdAt: serverTimestamp() })
+        await addDoc(ref, {
+          name,
+          limitCents: limitCents ?? 0,
+          color,
+          kind: kind ?? 'expense',
+          createdAt: serverTimestamp(),
+        })
       },
 
       async updateCategory(id, patch) {
@@ -66,7 +87,7 @@ export function CategoriesProvider({ children }) {
         await deleteDoc(doc(db, 'users', user.uid, 'categories', id))
       },
     }),
-    [categories, loading, user],
+    [categories, expenseCategories, incomeSources, loading, user],
   )
 
   return <CategoriesContext.Provider value={value}>{children}</CategoriesContext.Provider>

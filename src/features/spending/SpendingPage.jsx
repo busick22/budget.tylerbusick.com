@@ -1,13 +1,17 @@
 // Every transaction for the shown month. Two ways to look at it: by day
-// (default) or by category — and a filter to isolate one category so
-// miscategorizations are easy to spot and fix. Click any row to edit it.
+// (default) or by category — plus a filter to isolate one category so
+// miscategorizations are easy to spot.
+//
+// "Select" mode turns the rows into checkboxes for bulk work: pick many, then
+// set them all to a category at once, or delete them (with a confirm). Handy
+// for cleaning up a whole imported batch.
 //
 // The Dashboard can send you here pre-filtered to a category (or to
 // Uncategorized) via router state — that's the "drill into this gauge" flow.
 
 import { useMemo, useState } from 'react'
 import { useLocation } from 'react-router-dom'
-import { Plus, Receipt, Sparkles, CalendarDays, Tag } from 'lucide-react'
+import { Plus, Receipt, Sparkles, CalendarDays, Tag, ListChecks, Check } from 'lucide-react'
 import MonthSwitcher from '../../components/MonthSwitcher.jsx'
 import TransactionModal from './TransactionModal.jsx'
 import ImportModal from './ImportModal.jsx'
@@ -22,7 +26,7 @@ const UNCATEGORIZED = 'uncategorized'
 
 export default function SpendingPage() {
   const { categories, byId } = useCategories()
-  const { forMonth } = useTransactions()
+  const { forMonth, deleteMany, setCategoryMany } = useTransactions()
   const location = useLocation()
 
   // A drill-in from the Dashboard arrives with { categoryId, month } in state.
@@ -31,6 +35,12 @@ export default function SpendingPage() {
   const [viewMode, setViewMode] = useState('day') // 'day' | 'category'
   const [editing, setEditing] = useState(null) // null | 'new' | transaction object
   const [importing, setImporting] = useState(false)
+
+  // Select mode.
+  const [selecting, setSelecting] = useState(false)
+  const [selectedIds, setSelectedIds] = useState(() => new Set())
+  const [confirmDelete, setConfirmDelete] = useState(false)
+  const [busy, setBusy] = useState(false)
 
   const monthTx = useMemo(() => forMonth(month), [forMonth, month])
 
@@ -84,6 +94,59 @@ export default function SpendingPage() {
         ? 'Uncategorized'
         : (byId(filterCat)?.name ?? 'Category')
 
+  // --- Selection helpers ---
+  const filteredIds = filtered.map((t) => t.id)
+  const allSelected = filteredIds.length > 0 && filteredIds.every((id) => selectedIds.has(id))
+
+  function toggleSelect(id) {
+    setConfirmDelete(false)
+    setSelectedIds((prev) => {
+      const next = new Set(prev)
+      if (next.has(id)) next.delete(id)
+      else next.add(id)
+      return next
+    })
+  }
+
+  function toggleSelectAll() {
+    setConfirmDelete(false)
+    setSelectedIds(allSelected ? new Set() : new Set(filteredIds))
+  }
+
+  function exitSelect() {
+    setSelecting(false)
+    setSelectedIds(new Set())
+    setConfirmDelete(false)
+  }
+
+  async function applyCategory(value) {
+    if (!value || selectedIds.size === 0) return
+    setBusy(true)
+    try {
+      await setCategoryMany([...selectedIds], value === UNCATEGORIZED ? null : value)
+      // Stay in select mode with a fresh selection — the just-fixed rows drop
+      // out of an Uncategorized filter on their own, so cleanup keeps flowing.
+      setSelectedIds(new Set())
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  async function onDeleteClick() {
+    if (!confirmDelete) {
+      setConfirmDelete(true)
+      return
+    }
+    setBusy(true)
+    try {
+      await deleteMany([...selectedIds])
+      setSelectedIds(new Set())
+      setConfirmDelete(false)
+    } finally {
+      setBusy(false)
+    }
+  }
+
   return (
     <div className="page page-enter" data-page="spending" data-scroll="locked">
       <header className="page-head">
@@ -126,20 +189,28 @@ export default function SpendingPage() {
               By category
             </button>
           </div>
-          <select
-            className="field spend-filter"
-            value={filterCat}
-            onChange={(e) => setFilterCat(e.target.value)}
-            aria-label="Filter by category"
-          >
-            <option value="all">All categories</option>
-            <option value={UNCATEGORIZED}>Uncategorized</option>
-            {categories.map((c) => (
-              <option key={c.id} value={c.id}>
-                {c.name}
-              </option>
-            ))}
-          </select>
+          <div className="spend-toolbar-right">
+            {!selecting && (
+              <button className="btn" onClick={() => setSelecting(true)}>
+                <ListChecks size={15} aria-hidden="true" />
+                Select
+              </button>
+            )}
+            <select
+              className="field spend-filter"
+              value={filterCat}
+              onChange={(e) => setFilterCat(e.target.value)}
+              aria-label="Filter by category"
+            >
+              <option value="all">All categories</option>
+              <option value={UNCATEGORIZED}>Uncategorized</option>
+              {categories.map((c) => (
+                <option key={c.id} value={c.id}>
+                  {c.name}
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
       )}
 
@@ -170,7 +241,15 @@ export default function SpendingPage() {
               <h2 className="panel-title">{formatDay(day)}</h2>
               <div className="card spend-list">
                 {list.map((t) => (
-                  <TxRow key={t.id} tx={t} category={byId(t.categoryId)} onClick={() => setEditing(t)} />
+                  <TxRow
+                    key={t.id}
+                    tx={t}
+                    category={byId(t.categoryId)}
+                    selecting={selecting}
+                    selected={selectedIds.has(t.id)}
+                    onSelect={() => toggleSelect(t.id)}
+                    onEdit={() => setEditing(t)}
+                  />
                 ))}
               </div>
             </section>
@@ -189,13 +268,57 @@ export default function SpendingPage() {
               </h2>
               <div className="card spend-list">
                 {group.list.map((t) => (
-                  <TxRow key={t.id} tx={t} category={group.category} onClick={() => setEditing(t)} />
+                  <TxRow
+                    key={t.id}
+                    tx={t}
+                    category={group.category}
+                    selecting={selecting}
+                    selected={selectedIds.has(t.id)}
+                    onSelect={() => toggleSelect(t.id)}
+                    onEdit={() => setEditing(t)}
+                  />
                 ))}
               </div>
             </section>
           ))
         )}
       </div>
+
+      {selecting && (
+        <div className="spend-selectbar" role="toolbar" aria-label="Bulk actions">
+          <span className="spend-selectbar-count">{selectedIds.size} selected</span>
+          <button className="btn btn-ghost" onClick={toggleSelectAll} disabled={busy}>
+            {allSelected ? 'Clear' : 'Select all'}
+          </button>
+          <select
+            className="field spend-selectbar-cat"
+            value=""
+            onChange={(e) => applyCategory(e.target.value)}
+            disabled={busy || selectedIds.size === 0}
+            aria-label="Set category for selected"
+          >
+            <option value="" disabled>
+              Set category…
+            </option>
+            <option value={UNCATEGORIZED}>Uncategorized</option>
+            {categories.map((c) => (
+              <option key={c.id} value={c.id}>
+                {c.name}
+              </option>
+            ))}
+          </select>
+          <button
+            className="btn btn-danger"
+            onClick={onDeleteClick}
+            disabled={busy || selectedIds.size === 0}
+          >
+            {confirmDelete ? `Delete ${selectedIds.size}?` : 'Delete'}
+          </button>
+          <button className="btn" onClick={exitSelect} disabled={busy}>
+            Done
+          </button>
+        </div>
+      )}
 
       {editing && (
         <TransactionModal
@@ -209,9 +332,19 @@ export default function SpendingPage() {
   )
 }
 
-function TxRow({ tx, category, onClick }) {
+function TxRow({ tx, category, selecting, selected, onSelect, onEdit }) {
   return (
-    <button className="spend-row" onClick={onClick}>
+    <button
+      className="spend-row"
+      data-selecting={selecting}
+      data-selected={selected}
+      onClick={selecting ? onSelect : onEdit}
+    >
+      {selecting && (
+        <span className="spend-row-check" aria-hidden="true">
+          {selected && <Check size={13} />}
+        </span>
+      )}
       <span
         className="spend-row-dot"
         style={{ '--cat': category ? colorHex(category.color) : 'var(--text-dim)' }}

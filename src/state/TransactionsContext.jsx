@@ -18,6 +18,7 @@ import {
   query,
   serverTimestamp,
   updateDoc,
+  writeBatch,
 } from 'firebase/firestore'
 import { db } from '../firebase.js'
 import { useAuth } from './AuthContext.jsx'
@@ -91,6 +92,29 @@ export function TransactionsProvider({ children }) {
 
       async deleteTransaction(id) {
         await deleteDoc(doc(db, 'users', user.uid, 'transactions', id))
+      },
+
+      // Bulk actions for the Spending page's select mode. Firestore batches
+      // cap at 500 writes, so we chunk — though one person's selections stay
+      // well under that. Live listeners refresh the UI once the batch commits.
+      async deleteMany(ids) {
+        for (let i = 0; i < ids.length; i += 450) {
+          const batch = writeBatch(db)
+          for (const id of ids.slice(i, i + 450)) {
+            batch.delete(doc(db, 'users', user.uid, 'transactions', id))
+          }
+          await batch.commit()
+        }
+      },
+
+      async setCategoryMany(ids, categoryId) {
+        for (let i = 0; i < ids.length; i += 450) {
+          const batch = writeBatch(db)
+          for (const id of ids.slice(i, i + 450)) {
+            batch.update(doc(db, 'users', user.uid, 'transactions', id), { categoryId })
+          }
+          await batch.commit()
+        }
       },
     }),
     [transactions, loading, user],

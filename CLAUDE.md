@@ -88,6 +88,32 @@ language:
 
 ## Current focus
 
+- **2026-07-11 — Bulk select added to Spending (owner hit the "imported
+  everything uncategorized, don't want to delete one-by-one" problem).
+  Built + verified in-browser.** A "Select" button in the Spending toolbar
+  enters select mode: rows show checkboxes (click toggles), a floating
+  action bar shows "N selected" + Select all/Clear + a **Set category…**
+  dropdown + **Delete** (two-click confirm: "Delete N?") + Done. After a
+  bulk action the selection clears but stays in select mode, so cleaning a
+  filtered Uncategorized list flows (fixed rows drop out live). Works in
+  both by-day and by-category views and respects the category filter — so
+  the intended fix is: filter Uncategorized → Select → Select all → Set
+  category (or Delete to start over).
+  - **Data:** `TransactionsContext` gained `deleteMany(ids)` +
+    `setCategoryMany(ids, categoryId)` via Firestore `writeBatch`, chunked
+    at 450 (< 500 cap; one person stays well under). Live listeners refresh
+    the UI after commit.
+  - **Note for future me:** I recommended (and the owner agreed) that the
+    smarter fix for THEIR uncategorized batch is either bulk-assign in place
+    OR delete + re-run `/categorize` (now that merchant-rules.md has real
+    categories) + re-import — but the owner said they'd fix that batch
+    manually; this tool is the general capability. Re-import always APPENDS
+    (no dedup), so "start over" = delete then re-import.
+  - **Verified** (fixtures since removed; grep clean): 4 uncategorized →
+    Select all → Set Grocery (all dropped out of the Uncategorized filter);
+    select 2 → two-click Delete ($437.03 → $307.59, correct); confirm guard;
+    stays-in-select-mode; mobile action bar wraps above the dock. Lint +
+    build clean, zero console errors, committed.
 - **2026-07-11 — Category review tools added (see & fix categorizations).
   Built + verified in-browser.** Answers the owner's "will I see this
   categorization / fix miscategorizations in the app?" — the merchant-rules

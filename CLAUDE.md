@@ -38,10 +38,12 @@ language:
    placeholder pages.
 2. **Phase 2 — categories & manual money** ✅: owner-defined categories with
    monthly limits, manual add/edit transactions, dashboard gauges.
-3. **Phase 3 — CSV + AI import** (code-complete; deploy + live test blocked
-   on owner): upload a bank CSV → a Cloud Function sends it to the Anthropic
-   API → transactions come back normalized + categorized → review screen →
-   save. The API key lives ONLY in the Function (never the browser).
+3. **Phase 3 — statement import.** TWO paths into the same review screen:
+   (a) **Prepared file (primary, free):** an AI assistant (Claude Code or
+   Codex) runs the `/categorize` command → writes `import/<YYYY-MM>.json` →
+   app's "Load a prepared file" reads it (no cost, no backend). (b) **AI CSV
+   (optional, dormant):** upload raw CSV → Cloud Function → Anthropic API.
+   The owner chose (a) to avoid API credits; (b) stays built but unused.
 4. **Phase 4 — trackers** ✅: recurring bills with due dates, savings goals,
    debt payoff.
 
@@ -86,6 +88,51 @@ language:
 
 ## Current focus
 
+- **2026-07-11 — Free "prepared file" import added (the owner's chosen path;
+  avoids API credits entirely). Built + verified in-browser.** Rationale:
+  the owner already pays for Claude Code / Codex, so the AI categorizing
+  happens THERE (under subscription), and the app just loads the result —
+  no Anthropic API credits, no Blaze needed for this path.
+  - **Repo-side (tool-neutral, works with Claude Code AND Codex):**
+    `import/CATEGORIZE.md` is the canonical recipe (generic language, not
+    Claude-specific; scoped to read ONLY the named CSV + merchant-rules,
+    do the task, ask about unclear rows, write output, stop). Thin shims
+    `.claude/commands/categorize.md` + `.codex/prompts/categorize.md` both
+    point at it (so `/categorize <csv>` works in either tool).
+    `import/merchant-rules.md` = the MEMORY (kept separate from the recipe
+    so it can grow without churning the instructions): a Categories list
+    (owner keeps in sync with the app) + a Merchant→Category rules list the
+    command APPENDS to whenever the owner answers a question about an
+    unclear purchase — so it asks less each month. Output is
+    `import/<YYYY-MM>.json` (month-named). `import/README.md` = the human
+    walkthrough.
+  - **Key design choices:** command deals in category NAMES, not the app's
+    ids (decouples it from app internals); the app resolves name→id on
+    load, unmatched names → Uncategorized. Import JSON uses dollars
+    (`amount`) for human-readability; importer also accepts `amountCents`.
+    The app reaches the file via the FILE PICKER, not by reading the folder
+    — a browser can't read local folders, and data→Firestore is live
+    instantly so imports never need a redeploy (deploy = code only). This
+    was the explicit answer to "should the app read the folder + redeploy?"
+    → no, headache; picker is simpler.
+  - **App changes:** `lib/importer.js` gained `parsePreparedFile(text,
+    categories)` (JSON parse, array-or-{transactions}, dollars→cents via
+    parseToCents, name→id resolve, money-in coerce; renamed the size const
+    to `MAX_IMPORT_BYTES`). `ImportModal.jsx` pick step now offers TWO
+    entries: "Load a prepared file (.json)" (primary, instant→review) and a
+    quieter "Upload a raw CSV … with the built-in AI" (the dormant Function
+    path, labeled as needing setup + costing cents). Review/save unchanged.
+  - **Verified** (fixtures since removed; grep clean): loaded a canned
+    `2026-07.json` with names+dollars+a money-in row+an unmatched category
+    ("Pets") → names resolved to the right ids, "Pets"→Uncategorized,
+    string/number/integer dollar amounts all parsed, Paycheck auto-unticked
+    with MONEY IN badge, header math $239.96 ✓. Lint + build clean, zero
+    console errors.
+  - **Next:** owner does a real run — `/categorize` on an actual bank CSV
+    in Claude Code/Codex (fill his real categories into merchant-rules.md
+    first), load the JSON, confirm the round-trip. Still pending from
+    before: real sign-in QA (phases 2+4 against live Firestore) and the
+    first `firebase deploy`.
 - **2026-07-10 — Phase 3 CODE-COMPLETE (the only untested seam is the live
   Claude call — blocked on owner setup, SETUP.md §6).**
   - **Backend** (`functions/index.js`, the app's first backend): one

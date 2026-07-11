@@ -112,6 +112,62 @@
   height: 22px;
 }
 
+/* "or" divider between the prepared-file and AI options. */
+.import-or {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 16px 0;
+  color: var(--text-dim);
+  font-size: var(--text-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.import-or::before,
+.import-or::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
+/* Secondary (AI) option — quieter than the main drop zone. */
+.import-alt {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 12px 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  color: var(--text-mid);
+  font-size: var(--text-sm);
+  font-weight: 500;
+  cursor: pointer;
+  transition:
+    color var(--speed-fast) var(--ease-out),
+    border-color var(--speed-fast) var(--ease-out),
+    background var(--speed-fast) var(--ease-out);
+}
+
+.import-alt:hover {
+  color: var(--text);
+  border-color: var(--border-strong);
+  background: var(--surface-2);
+}
+
+.import-alt svg {
+  flex: none;
+  color: var(--text-dim);
+}
+
+.import-alt-note {
+  margin-top: 8px;
+  font-size: var(--text-xs);
+  color: var(--text-dim);
+  line-height: 1.45;
+}
+
 .import-working {
   display: flex;
   flex-direction: column;

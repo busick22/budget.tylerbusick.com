@@ -90,29 +90,41 @@ export const categorizeStatement = onCall(
 
     const client = new Anthropic({ apiKey: anthropicKey.value() })
 
-    const response = await client.messages.create({
-      model: 'claude-opus-4-8',
-      max_tokens: 16000,
-      output_config: {
-        format: { type: 'json_schema', schema: RESULT_SCHEMA },
-      },
-      system:
-        'You turn raw bank/credit-card statement CSVs into clean transaction lists. ' +
-        'Statements from different banks use different column layouts, date formats, ' +
-        'and sign conventions (some mark spending negative, some positive) — detect ' +
-        'the layout from the data. Skip header/footer rows, running-balance columns, ' +
-        'and duplicate pending/posted pairs. Clean merchant names to how a person ' +
-        'would say them. Assign each spending row the best-fitting category id from ' +
-        'the list, or null when nothing fits well — never force a bad match.',
-      messages: [
-        {
-          role: 'user',
-          content:
-            `My spending categories:\n${categoryList}\n\n` +
-            `The statement CSV:\n\`\`\`\n${csvText}\n\`\`\``,
+    let response
+    try {
+      response = await client.messages.create({
+        model: 'claude-opus-4-8',
+        max_tokens: 16000,
+        output_config: {
+          format: { type: 'json_schema', schema: RESULT_SCHEMA },
         },
-      ],
-    })
+        system:
+          'You turn raw bank/credit-card statement CSVs into clean transaction lists. ' +
+          'Statements from different banks use different column layouts, date formats, ' +
+          'and sign conventions (some mark spending negative, some positive) — detect ' +
+          'the layout from the data. Skip header/footer rows, running-balance columns, ' +
+          'and duplicate pending/posted pairs. Clean merchant names to how a person ' +
+          'would say them. Assign each spending row the best-fitting category id from ' +
+          'the list, or null when nothing fits well — never force a bad match.',
+        messages: [
+          {
+            role: 'user',
+            content:
+              `My spending categories:\n${categoryList}\n\n` +
+              `The statement CSV:\n\`\`\`\n${csvText}\n\`\`\``,
+          },
+        ],
+      })
+    } catch (err) {
+      const apiMessage = err?.error?.error?.message || err?.message || 'unknown error'
+      if (String(apiMessage).toLowerCase().includes('credit balance is too low')) {
+        throw new HttpsError(
+          'failed-precondition',
+          'Anthropic billing needs attention — add credits in Anthropic, then try the import again.',
+        )
+      }
+      throw new HttpsError('internal', `Anthropic request failed: ${apiMessage}`)
+    }
 
     if (response.stop_reason === 'refusal') {
       throw new HttpsError('internal', 'The AI declined to process this file — try a different export.')

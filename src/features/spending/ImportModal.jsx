@@ -1,15 +1,17 @@
-// The AI statement import, in three steps:
-//   1. pick    — choose the CSV you exported from the bank
-//   2. working — Claude reads and categorizes it (via the Cloud Function)
-//   3. review  — fix anything it got wrong, untick rows to skip, then save
-// Nothing is written to Firestore until Save on the review step.
+// Import a statement into reviewable rows, two ways:
+//   • Load a prepared file — a JSON the /categorize command wrote. Free,
+//     instant, no network. This is the main path.
+//   • Categorize a raw CSV with AI — hands the CSV to the Cloud Function.
+//     Optional; costs credits + needs setup.
+// Either way you land on the same review step, and nothing is saved to
+// Firestore until you hit Save there.
 
 import { useMemo, useState } from 'react'
 import { FileUp, Sparkles, ArrowDownToLine } from 'lucide-react'
 import Modal from '../../components/Modal.jsx'
 import { useCategories } from '../../state/CategoriesContext.jsx'
 import { useTransactions } from '../../state/TransactionsContext.jsx'
-import { categorizeCsv, MAX_CSV_BYTES } from '../../lib/importer.js'
+import { parsePreparedFile, categorizeCsv, MAX_IMPORT_BYTES } from '../../lib/importer.js'
 import { formatCents } from '../../lib/money.js'
 
 export default function ImportModal({ onClose }) {
@@ -22,11 +24,37 @@ export default function ImportModal({ onClose }) {
   const [error, setError] = useState('')
   const [busy, setBusy] = useState(false)
 
-  async function onFile(event) {
+  // Money-in rows (deposits, refunds) start unticked — this app tracks
+  // spending — but the owner can tick one to record it anyway.
+  function toReview(transactions) {
+    setRows(transactions.map((t) => ({ ...t, include: !t.isMoneyIn })))
+    setStep('review')
+  }
+
+  // --- Path 1: prepared JSON file (free, instant) ---
+  async function onPreparedFile(event) {
     const file = event.target.files?.[0]
     if (!file) return
     setError('')
-    if (file.size > MAX_CSV_BYTES) {
+    if (file.size > MAX_IMPORT_BYTES) {
+      setError('That file is unexpectedly large — is it the right one?')
+      return
+    }
+    setFileName(file.name)
+    try {
+      const text = await file.text()
+      toReview(parsePreparedFile(text, categories))
+    } catch (err) {
+      setError(err.message || 'Reading the file failed.')
+    }
+  }
+
+  // --- Path 2: raw CSV via the AI Cloud Function (optional, costs credits) ---
+  async function onCsvFile(event) {
+    const file = event.target.files?.[0]
+    if (!file) return
+    setError('')
+    if (file.size > MAX_IMPORT_BYTES) {
       setError('That file is too big for one statement — export one month at a time.')
       return
     }
@@ -39,10 +67,7 @@ export default function ImportModal({ onClose }) {
       if (transactions.length === 0) {
         throw new Error('No transactions were found in that file — is it the right export?')
       }
-      // Money-in rows (deposits, refunds) start unticked — this app tracks
-      // spending, but the owner can tick one to record it anyway.
-      setRows(transactions.map((t) => ({ ...t, include: !t.isMoneyIn })))
-      setStep('review')
+      toReview(transactions)
     } catch (err) {
       setError(err.message || 'Reading the statement failed — try again.')
       setStep('pick')
@@ -82,20 +107,42 @@ export default function ImportModal({ onClose }) {
         <>
           <h3>Import a statement</h3>
           <p className="import-blurb">
-            Export a CSV from your bank or card site, drop it here, and the AI
-            reads every line — sorting each purchase into your categories for
-            you to check before anything is saved.
+            Prepare a file with the <code>/categorize</code> command in Claude
+            Code or Codex — it reads your bank CSV, sorts each purchase into
+            your categories, and asks about anything unclear — then load it
+            here to review and save.
           </p>
+
           <label className="import-drop">
             <FileUp aria-hidden="true" />
-            <span>Choose a CSV file</span>
+            <span>Load a prepared file (.json)</span>
             <input
               type="file"
-              accept=".csv,text/csv"
-              onChange={onFile}
+              accept=".json,application/json"
+              onChange={onPreparedFile}
               style={{ display: 'none' }}
             />
           </label>
+
+          <div className="import-or" role="presentation">
+            <span>or</span>
+          </div>
+
+          <label className="import-alt">
+            <Sparkles size={14} aria-hidden="true" />
+            <span>Upload a raw CSV and categorize it with the built-in AI</span>
+            <input
+              type="file"
+              accept=".csv,text/csv"
+              onChange={onCsvFile}
+              style={{ display: 'none' }}
+            />
+          </label>
+          <p className="import-alt-note">
+            The AI option calls the Anthropic API — needs setup (SETUP.md) and
+            costs a few cents per statement.
+          </p>
+
           {error && <p className="error-note">{error}</p>}
         </>
       )}
@@ -111,7 +158,7 @@ export default function ImportModal({ onClose }) {
 
       {step === 'review' && (
         <>
-          <h3>Check the AI&rsquo;s work</h3>
+          <h3>Check the import</h3>
           <p className="import-blurb">
             {included.length} of {rows.length} rows will be saved ·{' '}
             <span className="amount">{formatCents(includedTotal)}</span>. Untick anything to

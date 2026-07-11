@@ -1,0 +1,244 @@
+/* Dashboard: month summary + one gauge card per category. */
+
+.dash-head-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: none;
+}
+
+/* --- Month switcher (shared look, defined once here) ------------------------- */
+
+.monthswitcher {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.monthswitcher-label {
+  min-width: 128px;
+  padding: 6px 10px;
+  border-radius: var(--radius-md);
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: var(--text-sm);
+  text-align: center;
+  color: var(--text);
+  transition: background var(--speed-fast) var(--ease-out);
+}
+
+.monthswitcher-label:hover {
+  background: var(--surface-2);
+}
+
+.monthswitcher-label[data-current='false'] {
+  color: var(--page-accent, var(--accent));
+}
+
+/* --- Summary strip ------------------------------------------------------------ */
+
+.dash-summary {
+  display: flex;
+  gap: 10px;
+  padding: 16px 20px;
+  margin-bottom: 16px;
+}
+
+.dash-summary > div {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.dash-summary strong {
+  font-size: var(--text-lg);
+}
+
+.dash-summary [data-over='true'] strong,
+.dash-summary > div[data-over='true'] strong {
+  color: var(--danger);
+}
+
+/* --- Gauge grid ---------------------------------------------------------------- */
+
+.dash-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 12px;
+}
+
+.dash-gauge {
+  padding: 16px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.dash-gauge-head {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+
+.dash-gauge-head h3 {
+  flex: 1;
+  min-width: 0;
+  font-size: var(--text-md);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.dash-gauge-head .icon-btn {
+  width: 28px;
+  height: 28px;
+  opacity: 0;
+  transition: opacity var(--speed-fast) var(--ease-out);
+}
+
+.dash-gauge:hover .icon-btn,
+.dash-gauge .icon-btn:focus-visible {
+  opacity: 1;
+}
+
+/* Touch screens have no hover — keep the edit pencil visible. */
+@media (hover: none) {
+  .dash-gauge-head .icon-btn {
+    opacity: 1;
+  }
+}
+
+.dash-gauge-dot {
+  width: 9px;
+  height: 9px;
+  flex: none;
+  border-radius: 3px;
+  background: var(--cat);
+}
+
+.dash-gauge-nums {
+  display: flex;
+  align-items: baseline;
+  gap: 7px;
+}
+
+.dash-gauge-nums strong {
+  font-size: var(--text-xl);
+  font-family: var(--font-display);
+}
+
+.dash-gauge-nums span {
+  font-size: var(--text-sm);
+  color: var(--text-mid);
+}
+
+.dash-gauge-bar {
+  height: 8px;
+  border-radius: var(--radius-full);
+  background: var(--surface-3);
+  overflow: hidden;
+}
+
+.dash-gauge-fill {
+  height: 100%;
+  border-radius: var(--radius-full);
+  background: var(--cat);
+  transition: width var(--speed-slow) var(--ease-out);
+}
+
+.dash-gauge[data-near='true'] .dash-gauge-fill {
+  background: var(--accent-spending);
+}
+
+.dash-gauge[data-over='true'] .dash-gauge-fill {
+  background: var(--danger);
+}
+
+.dash-gauge-foot {
+  font-size: var(--text-sm);
+  color: var(--text-mid);
+}
+
+.dash-gauge[data-over='true'] .dash-gauge-foot {
+  color: var(--danger);
+}
+
+/* --- New-category tile ----------------------------------------------------------- */
+
+.dash-add {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 120px;
+  padding: 16px;
+  border-style: dashed;
+  color: var(--text-dim);
+  font-size: var(--text-sm);
+  font-weight: 550;
+  transition:
+    color var(--speed-fast) var(--ease-out),
+    border-color var(--speed-fast) var(--ease-out),
+    background var(--speed-fast) var(--ease-out);
+}
+
+.dash-add:hover {
+  color: var(--accent);
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+
+.dash-add svg {
+  width: 20px;
+  height: 20px;
+}
+
+.dash-uncat {
+  margin-top: 16px;
+  font-size: var(--text-sm);
+  color: var(--text-mid);
+}
+
+/* --- Category modal ------------------------------------------------------------- */
+
+.catmodal-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.catmodal-swatches {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.catmodal-swatch {
+  width: 26px;
+  height: 26px;
+  border-radius: var(--radius-full);
+  background: var(--swatch);
+  border: 2px solid transparent;
+  transition: transform var(--speed-fast) var(--ease-out);
+}
+
+.catmodal-swatch:hover {
+  transform: scale(1.12);
+}
+
+.catmodal-swatch[data-active='true'] {
+  border-color: var(--text);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--swatch) 35%, transparent);
+}
+
+.catmodal-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.catmodal-actions-gap {
+  flex: 1;
+}

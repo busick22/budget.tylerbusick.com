@@ -1,0 +1,130 @@
+/* ---------------------------------------------------------------------------
+   Budget design tokens.
+
+   Every color, size, and timing the app uses is named here once. Components
+   never hard-code hex values — they reference these variables, which is what
+   makes the light/dark themes and the per-area accent tinting work.
+
+   Budget's identity: same bones as Accomplish, but tinted green — emerald is
+   the primary accent, and the dark background leans forest instead of navy.
+--------------------------------------------------------------------------- */
+
+:root {
+  /* Type */
+  --font-display: 'Space Grotesk', 'Inter', system-ui, sans-serif;
+  --font-body: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-mono: ui-monospace, 'SF Mono', Menlo, monospace;
+
+  --text-xs: 0.72rem;
+  --text-sm: 0.83rem;
+  --text-md: 0.94rem;
+  --text-lg: 1.12rem;
+  --text-xl: 1.45rem;
+  --text-2xl: 1.9rem;
+
+  /* Shape */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 18px;
+  --radius-full: 999px;
+
+  /* Motion */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --speed-fast: 140ms;
+  --speed-med: 240ms;
+  --speed-slow: 420ms;
+
+  /* Layout */
+  --sidebar-width: 232px;
+  --sidebar-rail: 68px;
+  --dock-height: 58px;
+  --dock-inset: max(env(safe-area-inset-bottom, 0px), 14px);
+  --page-pad: clamp(16px, 3vw, 32px);
+
+  /* Area accents — each tab gets its own signal color, used sparingly. */
+  --accent-dashboard: #3ecf8e;
+  --accent-spending: #f5b453;
+  --accent-bills: #8f9cf7;
+  --accent-goals: #38cfe0;
+  --accent-debt: #f2718a;
+}
+
+/* --- Dark (default) -------------------------------------------------------- */
+:root,
+:root[data-theme='dark'] {
+  color-scheme: dark;
+
+  --bg: #0b120e;
+  --bg-deep: #070c09;
+  --surface: #101a14;
+  --surface-2: #16221b;
+  --surface-3: #1d2c23;
+
+  --border: rgba(150, 200, 172, 0.14);
+  --border-strong: rgba(150, 200, 172, 0.26);
+
+  --text: #e8f1ea;
+  --text-mid: #9db5a6;
+  --text-dim: #66806f;
+
+  --accent: #3ecf8e;
+  --accent-strong: #5fe4a8;
+  --on-accent: #042416;
+  --accent-soft: rgba(62, 207, 142, 0.13);
+  --accent-glow: rgba(62, 207, 142, 0.22);
+
+  --danger: #f2718a;
+  --danger-soft: rgba(242, 113, 138, 0.14);
+  --ok: #4fd6a4;
+
+  --shadow-1: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow-2: 0 8px 28px rgba(0, 0, 0, 0.45);
+  --shadow-pop: 0 16px 48px rgba(0, 0, 0, 0.55);
+
+  --backdrop: rgba(4, 9, 6, 0.62);
+
+  /* Faint grid texture behind pages — part of the ledger-panel look. */
+  --grid-line: rgba(150, 200, 172, 0.045);
+}
+
+/* --- Light ----------------------------------------------------------------- */
+:root[data-theme='light'] {
+  color-scheme: light;
+
+  --bg: #eef4f0;
+  --bg-deep: #e3ebe6;
+  --surface: #ffffff;
+  --surface-2: #f5f9f6;
+  --surface-3: #eaf1ec;
+
+  --border: rgba(24, 56, 38, 0.12);
+  --border-strong: rgba(24, 56, 38, 0.24);
+
+  --text: #16261c;
+  --text-mid: #4d6a58;
+  --text-dim: #84a08f;
+
+  --accent: #0f9d63;
+  --accent-strong: #0c8a56;
+  --on-accent: #ffffff;
+  --accent-soft: rgba(15, 157, 99, 0.1);
+  --accent-glow: rgba(15, 157, 99, 0.18);
+
+  --danger: #d64562;
+  --danger-soft: rgba(214, 69, 98, 0.1);
+  --ok: #14976b;
+
+  --shadow-1: 0 1px 2px rgba(22, 43, 30, 0.08);
+  --shadow-2: 0 8px 24px rgba(22, 43, 30, 0.1);
+  --shadow-pop: 0 16px 44px rgba(22, 43, 30, 0.16);
+
+  --backdrop: rgba(22, 43, 30, 0.4);
+
+  --grid-line: rgba(24, 56, 38, 0.035);
+
+  --accent-dashboard: #0f9d63;
+  --accent-spending: #c07f16;
+  --accent-bills: #5966d6;
+  --accent-goals: #0e9db2;
+  --accent-debt: #d64562;
+}

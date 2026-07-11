@@ -1,0 +1,113 @@
+/* Goals: progress cards with quick add-money. Reuses the dashboard's
+   gauge-bar and dot styles (dash-gauge-bar / dash-gauge-fill / dash-gauge-dot). */
+
+.goals-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 12px;
+}
+
+.goal-card {
+  padding: 16px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.goal-head {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+
+.goal-head h3 {
+  flex: 1;
+  min-width: 0;
+  font-size: var(--text-md);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.goal-head .icon-btn {
+  width: 28px;
+  height: 28px;
+  opacity: 0;
+  transition: opacity var(--speed-fast) var(--ease-out);
+}
+
+.goal-card:hover .icon-btn,
+.goal-card .icon-btn:focus-visible {
+  opacity: 1;
+}
+
+@media (hover: none) {
+  .goal-head .icon-btn {
+    opacity: 1;
+  }
+}
+
+.goal-nums {
+  display: flex;
+  align-items: baseline;
+  gap: 7px;
+}
+
+.goal-nums strong {
+  font-size: var(--text-xl);
+  font-family: var(--font-display);
+}
+
+.goal-nums span {
+  font-size: var(--text-sm);
+  color: var(--text-mid);
+}
+
+.goal-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  font-size: var(--text-sm);
+  color: var(--text-mid);
+}
+
+.goal-add-btn {
+  padding: 6px 12px;
+}
+
+.goal-done {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--ok);
+  font-weight: 550;
+}
+
+.goal-card[data-done='true'] .dash-gauge-fill {
+  background: var(--ok);
+}
+
+/* --- Goal modal ------------------------------------------------------------------ */
+
+.goalmodal-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.goalmodal-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.goalmodal-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.goalmodal-actions-gap {
+  flex: 1;
+}

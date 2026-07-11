@@ -1,0 +1,118 @@
+.signin {
+  position: relative;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  overflow: hidden;
+  background: var(--bg-deep);
+}
+
+/* Backdrop: soft accent glows over a faint grid — the ledger-panel look. */
+.signin-scene {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(640px 420px at 20% 12%, var(--accent-glow), transparent 65%),
+    radial-gradient(560px 400px at 82% 88%, rgba(56, 207, 224, 0.14), transparent 65%),
+    linear-gradient(var(--grid-line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+  background-size: auto, auto, 44px 44px, 44px 44px;
+  mask-image: radial-gradient(closest-side at 50% 50%, black, transparent 130%);
+}
+
+.signin-card {
+  position: relative;
+  width: min(380px, 100%);
+  padding: 34px 30px 24px;
+  background: color-mix(in srgb, var(--surface) 86%, transparent);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-2);
+  backdrop-filter: blur(14px);
+}
+
+.signin-brand {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 26px;
+  text-align: center;
+}
+
+.signin-brand h1 {
+  font-size: var(--text-2xl);
+  letter-spacing: -0.02em;
+}
+
+.signin-brand p {
+  color: var(--text-mid);
+  font-size: var(--text-sm);
+}
+
+/* Shown while src/firebase.js still holds the placeholder config. */
+.signin-setup-note {
+  margin-bottom: 18px;
+  padding: 10px 14px;
+  border-radius: var(--radius-md);
+  background: var(--accent-soft);
+  color: var(--text-mid);
+  font-size: var(--text-sm);
+  line-height: 1.45;
+}
+
+.signin-setup-note code {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  color: var(--accent);
+}
+
+.signin-form {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.signin-form .field {
+  margin-bottom: 10px;
+}
+
+.signin-submit {
+  margin-top: 6px;
+  width: 100%;
+  padding: 11px;
+}
+
+.signin-divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 18px 0;
+  color: var(--text-dim);
+  font-size: var(--text-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.signin-divider::before,
+.signin-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
+.signin-google {
+  width: 100%;
+  padding: 11px;
+}
+
+.signin-foot {
+  margin-top: 22px;
+  text-align: center;
+  color: var(--text-dim);
+  font-size: var(--text-xs);
+  letter-spacing: 0.04em;
+}

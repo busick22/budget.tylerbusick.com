@@ -1,0 +1,13 @@
+rules_version = '2';
+
+// Budget Firestore rules.
+// Single-owner app: everything lives under users/{userId}, readable and
+// writable only by that signed-in user. Nothing is public.
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /users/{userId}/{document=**} {
+      allow read, write: if request.auth != null
+                         && request.auth.uid == userId;
+    }
+  }
+}

@@ -1,0 +1,17 @@
+# Dependencies & build output
+node_modules/
+dist/
+dev-dist/
+
+# Local env (will hold secrets like the Anthropic API key reference)
+.env
+.env.local
+
+# Firebase local artifacts
+.firebase/
+firebase-debug.log
+firestore-debug.log
+functions/.env
+
+# OS noise
+.DS_Store

@@ -1,0 +1,243 @@
+/* The signed-in frame: sidebar (desktop) / bottom tabs (mobile) + page area. */
+
+.shell {
+  display: flex;
+  height: 100%;
+  background:
+    radial-gradient(1100px 500px at 85% -10%, var(--accent-soft), transparent 60%),
+    linear-gradient(var(--grid-line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid-line) 1px, transparent 1px),
+    var(--bg);
+  background-size: auto, 44px 44px, 44px 44px, auto;
+}
+
+.shell-main {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* --- Sidebar (desktop) ------------------------------------------------------ */
+
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  width: var(--sidebar-width);
+  flex: none;
+  padding: 18px 12px 14px;
+  border-right: 1px solid var(--border);
+  background: color-mix(in srgb, var(--surface) 72%, transparent);
+  backdrop-filter: blur(10px);
+  transition: width var(--speed-med) var(--ease-out);
+}
+
+.shell[data-collapsed='true'] .sidebar {
+  width: var(--sidebar-rail);
+}
+
+.sidebar-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 4px 10px 18px;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+}
+
+.sidebar-foot {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding-top: 10px;
+  border-top: 1px solid var(--border);
+}
+
+.sidebar-link {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: var(--radius-md);
+  color: var(--text-mid);
+  font-size: var(--text-sm);
+  font-weight: 550;
+  white-space: nowrap;
+  overflow: hidden;
+  transition:
+    background var(--speed-fast) var(--ease-out),
+    color var(--speed-fast) var(--ease-out);
+}
+
+.sidebar-link svg {
+  width: 19px;
+  height: 19px;
+  flex: none;
+}
+
+.sidebar-link:hover {
+  background: var(--surface-2);
+  color: var(--text);
+}
+
+.sidebar-link.active {
+  background: color-mix(in srgb, var(--item-accent) 13%, transparent);
+  color: var(--text);
+}
+
+.sidebar-link.active svg {
+  color: var(--item-accent);
+}
+
+/* Active indicator: a short glowing bar on the left edge. */
+.sidebar-link.active::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  translate: 0 -50%;
+  width: 3px;
+  height: 55%;
+  border-radius: var(--radius-full);
+  background: var(--item-accent);
+  box-shadow: 0 0 10px var(--item-accent);
+}
+
+.shell[data-collapsed='true'] .sidebar-link {
+  justify-content: center;
+  padding: 10px 0;
+}
+
+.sidebar-collapse {
+  color: var(--text-dim);
+}
+
+/* --- Bottom nav (mobile): a floating dock ------------------------------------- */
+
+.bottomnav {
+  position: fixed;
+  left: 50%;
+  translate: -50% 0;
+  bottom: var(--dock-inset);
+  z-index: 50;
+  display: none;
+  width: min(460px, calc(100% - 32px));
+  height: var(--dock-height);
+  padding: 0 6px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-full);
+  background: color-mix(in srgb, var(--surface) 86%, transparent);
+  backdrop-filter: blur(18px);
+  box-shadow: var(--shadow-2);
+  touch-action: none; /* the dock itself never pans or scrolls */
+}
+
+.bottomnav-link {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  border-radius: var(--radius-full);
+  color: var(--text-dim);
+  font-size: var(--text-xs);
+  font-weight: 550;
+  transition: color var(--speed-fast) var(--ease-out);
+}
+
+.bottomnav-link svg {
+  width: 21px;
+  height: 21px;
+  transition: transform var(--speed-fast) var(--ease-out);
+}
+
+.bottomnav-link.active {
+  color: var(--item-accent);
+}
+
+.bottomnav-link.active svg {
+  transform: translateY(-1px);
+}
+
+/* --- Responsive switch ---------------------------------------------------------- */
+
+@media (max-width: 800px) {
+  .sidebar {
+    display: none;
+  }
+
+  .bottomnav {
+    display: flex;
+  }
+
+  /* Leave room for the floating dock plus a little air above it. */
+  .shell-main {
+    height: calc(100% - var(--dock-height) - var(--dock-inset) - 8px);
+  }
+}
+
+/* --- Shared page scaffolding ------------------------------------------------------ */
+
+.page {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  padding: var(--page-pad);
+  overflow-y: auto;
+}
+
+/* Pages that manage their own inner scrolling. */
+.page[data-scroll='locked'] {
+  overflow: hidden;
+}
+
+/* The scrolling region inside a locked page — the header above it stays put. */
+.page-scroll {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+@media (max-width: 800px) {
+  /* Keep headers out of the phone's status bar / notch, and tighten the
+     bottom since the floating dock already reserves its own space. */
+  .page {
+    padding-top: calc(env(safe-area-inset-top, 0px) + 14px);
+    padding-bottom: 12px;
+  }
+}
+
+.page-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  margin-bottom: 18px;
+  flex: none;
+}
+
+.page-title {
+  font-size: var(--text-xl);
+}
+
+.page-title small {
+  display: block;
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  font-weight: 450;
+  color: var(--text-mid);
+  letter-spacing: 0;
+  margin-top: 2px;
+}

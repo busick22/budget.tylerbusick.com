@@ -1,0 +1,44 @@
+.settings-body {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  max-width: 560px;
+}
+
+.settings-section {
+  padding: 18px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.settings-themes {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.settings-account {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.settings-account-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  line-height: 1.35;
+}
+
+.settings-account-info strong {
+  font-size: var(--text-sm);
+}
+
+.settings-account-info span {
+  font-size: var(--text-xs);
+  color: var(--text-mid);
+  overflow: hidden;
+  text-overflow: ellipsis;
+}

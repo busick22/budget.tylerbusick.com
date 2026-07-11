@@ -1,0 +1,44 @@
+/* Debt: payoff cards. Reuses the goal-card inner styles (goal-head, goal-nums,
+   goal-foot, goal-done, goal-add-btn from goals.css) and the dashboard's
+   gauge bar — this file only adds what's debt-specific. */
+
+.debt-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 12px;
+}
+
+.debt-card {
+  padding: 16px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.debt-card[data-done='true'] .dash-gauge-fill {
+  background: var(--ok);
+}
+
+/* --- Debt modal ------------------------------------------------------------------ */
+
+.debtmodal-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.debtmodal-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.debtmodal-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.debtmodal-actions-gap {
+  flex: 1;
+}

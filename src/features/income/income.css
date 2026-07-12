@@ -87,3 +87,23 @@
   font-weight: 600;
   color: var(--money-in);
 }
+
+@media (max-width: 640px) {
+  .income-head-actions {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    width: 100%;
+    gap: 8px;
+  }
+
+  .income-head-actions .btn {
+    width: 100%;
+  }
+}
+
+@media (max-width: 420px) {
+  .income-row {
+    gap: 9px;
+    padding: 11px 12px;
+  }
+}

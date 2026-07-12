@@ -66,7 +66,7 @@ export default function GoalModal({ goal, onClose }) {
   }
 
   return (
-    <Modal onClose={onClose}>
+    <Modal onClose={onClose} label={isNew ? 'New goal' : 'Edit goal'}>
       <h3>{isNew ? 'New goal' : 'Edit goal'}</h3>
 
       <form onSubmit={onSave} className="goalmodal-form">

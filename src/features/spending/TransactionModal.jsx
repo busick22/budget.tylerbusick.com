@@ -88,7 +88,10 @@ export default function TransactionModal({ transaction, defaultDate, defaultType
   }
 
   return (
-    <Modal onClose={onClose}>
+    <Modal
+      onClose={onClose}
+      label={`${isNew ? 'Add' : 'Edit'} ${isIncome ? 'income' : 'transaction'}`}
+    >
       <h3>{isNew ? 'Add' : 'Edit'} {isIncome ? 'income' : 'transaction'}</h3>
 
       <form onSubmit={onSave} className="txmodal-form">

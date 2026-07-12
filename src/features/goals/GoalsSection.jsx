@@ -151,7 +151,7 @@ function AddMoneyModal({ goal, onClose }) {
   }
 
   return (
-    <Modal onClose={onClose} width={340}>
+    <Modal onClose={onClose} width={340} label={`Add to ${goal.name}`}>
       <h3>Add to {goal.name}</h3>
       <form onSubmit={onSubmit} className="goalmodal-form">
         <div>

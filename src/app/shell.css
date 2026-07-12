@@ -222,14 +222,20 @@
 .page-head {
   display: flex;
   align-items: center;
-  justify-content: space-between;
   gap: 14px;
   margin-bottom: 18px;
   flex: none;
 }
 
+/* Title soaks up the slack so the month switcher + action buttons group
+   together on the right. */
+.page-head > .page-title {
+  margin-right: auto;
+}
+
 .page-title {
   font-size: var(--text-xl);
+  min-width: 0;
 }
 
 .page-title small {
@@ -240,4 +246,41 @@
   color: var(--text-mid);
   letter-spacing: 0;
   margin-top: 2px;
+}
+
+@media (max-width: 640px) {
+  /* Title on the left, the compact month switcher tucked top-right beside
+     it; any action buttons drop to their own full-width row underneath. */
+  .page-head {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: start;
+    column-gap: 10px;
+    row-gap: 10px;
+    margin-bottom: 14px;
+  }
+
+  .page-head > .page-title {
+    grid-column: 1;
+    margin-right: 0;
+  }
+
+  .page-head > .monthswitcher {
+    grid-column: 2;
+    justify-self: end;
+  }
+
+  .page-head > :not(.page-title):not(.monthswitcher) {
+    grid-column: 1 / -1;
+    width: 100%;
+  }
+
+  /* A touch tighter so the switcher + title share a row comfortably. */
+  .monthswitcher-label {
+    min-width: 104px;
+  }
+
+  .page-scroll {
+    scrollbar-gutter: stable;
+  }
 }

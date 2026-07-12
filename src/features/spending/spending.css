@@ -220,7 +220,7 @@
   font-weight: 600;
 }
 
-/* --- AI import modal --------------------------------------------------------------- */
+/* --- Import modal --------------------------------------------------------------- */
 
 .import-blurb {
   margin-bottom: 16px;
@@ -256,82 +256,6 @@
 .import-drop svg {
   width: 22px;
   height: 22px;
-}
-
-/* "or" divider between the prepared-file and AI options. */
-.import-or {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin: 16px 0;
-  color: var(--text-dim);
-  font-size: var(--text-xs);
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-}
-
-.import-or::before,
-.import-or::after {
-  content: '';
-  flex: 1;
-  height: 1px;
-  background: var(--border);
-}
-
-/* Secondary (AI) option — quieter than the main drop zone. */
-.import-alt {
-  display: flex;
-  align-items: center;
-  gap: 9px;
-  padding: 12px 14px;
-  border: 1px solid var(--border);
-  border-radius: var(--radius-md);
-  color: var(--text-mid);
-  font-size: var(--text-sm);
-  font-weight: 500;
-  cursor: pointer;
-  transition:
-    color var(--speed-fast) var(--ease-out),
-    border-color var(--speed-fast) var(--ease-out),
-    background var(--speed-fast) var(--ease-out);
-}
-
-.import-alt:hover {
-  color: var(--text);
-  border-color: var(--border-strong);
-  background: var(--surface-2);
-}
-
-.import-alt svg {
-  flex: none;
-  color: var(--text-dim);
-}
-
-.import-alt-note {
-  margin-top: 8px;
-  font-size: var(--text-xs);
-  color: var(--text-dim);
-  line-height: 1.45;
-}
-
-.import-working {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 10px;
-  padding: 24px 8px;
-  text-align: center;
-}
-
-.import-working p {
-  font-size: var(--text-sm);
-  color: var(--text-mid);
-}
-
-.import-working-icon {
-  width: 26px;
-  height: 26px;
-  color: var(--accent);
 }
 
 .import-rows {
@@ -387,9 +311,14 @@
   font-style: normal;
   font-size: 0.64rem;
   font-weight: 650;
-  letter-spacing: 0.05em;
+  letter-spacing: 0;
   text-transform: uppercase;
   color: var(--ok);
+}
+
+.import-total-in,
+.import-row-amount[data-money-in='true'] {
+  color: var(--money-in);
 }
 
 .import-row-date {
@@ -487,4 +416,100 @@
 
 .txmodal-actions-gap {
   flex: 1;
+}
+
+@media (max-width: 640px) {
+  .spend-head-actions {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    width: 100%;
+    gap: 8px;
+  }
+
+  .spend-head-actions .btn {
+    width: 100%;
+  }
+
+  /* New category + Import share the top row; Add expense (primary) gets its
+     own full-width row beneath so it stays the obvious main action. */
+  .spend-head-actions .btn-primary {
+    grid-column: 1 / -1;
+  }
+
+  .spend-toolbar {
+    align-items: stretch;
+    margin-bottom: 12px;
+  }
+
+  .spend-viewtoggle,
+  .spend-toolbar-right {
+    width: 100%;
+  }
+
+  .spend-viewtoggle button {
+    flex: 1;
+    justify-content: center;
+  }
+
+  .spend-toolbar-right .btn {
+    flex: none;
+  }
+
+  .spend-filter.field {
+    flex: 1;
+    min-width: 0;
+    max-width: none;
+  }
+
+  .spend-selectbar {
+    width: calc(100% - 24px);
+    max-width: 480px;
+  }
+
+  .import-row {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    gap: 8px 10px;
+  }
+
+  .import-row .import-row-cat {
+    grid-column: 2 / -1;
+    width: 100%;
+  }
+
+  .txmodal-row {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 420px) {
+  .spend-row {
+    gap: 9px;
+    padding: 11px 12px;
+  }
+
+  .spend-selectbar {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 6px;
+  }
+
+  .spend-selectbar-count {
+    align-self: center;
+  }
+
+  .spend-selectbar .btn,
+  .spend-selectbar-cat.field {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .import-actions,
+  .txmodal-actions {
+    flex-wrap: wrap;
+  }
+
+  .import-actions .btn-primary {
+    flex: 1;
+  }
 }

@@ -4,8 +4,8 @@
 import { Gauge, Receipt, CalendarClock, Wallet, TrendingDown } from 'lucide-react'
 
 export const NAV_ITEMS = [
-  { to: '/', label: 'Dashboard', icon: Gauge, accent: 'var(--accent-dashboard)' },
-  { to: '/spending', label: 'Spending', icon: Receipt, accent: 'var(--accent-spending)' },
+  { to: '/', label: 'Dashboard', mobileLabel: 'Home', icon: Gauge, accent: 'var(--accent-dashboard)' },
+  { to: '/spending', label: 'Spending', mobileLabel: 'Spend', icon: Receipt, accent: 'var(--accent-spending)' },
   { to: '/bills', label: 'Bills', icon: CalendarClock, accent: 'var(--accent-bills)' },
   { to: '/income', label: 'Income', icon: Wallet, accent: 'var(--accent-income)' },
   { to: '/debt', label: 'Debt', icon: TrendingDown, accent: 'var(--accent-debt)' },

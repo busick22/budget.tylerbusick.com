@@ -73,7 +73,7 @@ export default function CategoryModal({ category, kind = 'expense', onClose }) {
   const titleNoun = isIncome ? 'source' : 'category'
 
   return (
-    <Modal onClose={onClose}>
+    <Modal onClose={onClose} label={`${isNew ? 'New' : 'Edit'} ${titleNoun}`}>
       <h3>
         {isNew ? 'New' : 'Edit'} {titleNoun}
       </h3>

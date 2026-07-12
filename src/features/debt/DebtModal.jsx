@@ -74,7 +74,7 @@ export default function DebtModal({ debt, onClose }) {
   }
 
   return (
-    <Modal onClose={onClose}>
+    <Modal onClose={onClose} label={isNew ? 'New debt' : 'Edit debt'}>
       <h3>{isNew ? 'New debt' : 'Edit debt'}</h3>
 
       <form onSubmit={onSave} className="debtmodal-form">

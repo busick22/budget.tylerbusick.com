@@ -18,6 +18,77 @@
   flex-wrap: wrap;
 }
 
+/* Section header with a title on the left and a "New" action on the right. */
+.settings-section-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.settings-cat-empty {
+  font-size: var(--text-sm);
+  color: var(--text-mid);
+  margin: 0;
+}
+
+.settings-cat-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.settings-cat-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 9px 10px;
+  border-radius: var(--radius-md);
+  text-align: left;
+  color: var(--text);
+  transition: background var(--speed-fast) var(--ease-out);
+}
+
+.settings-cat-row:hover {
+  background: var(--surface-2);
+}
+
+.settings-cat-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex: none;
+  background: var(--cat, var(--text-dim));
+}
+
+.settings-cat-name {
+  flex: 1;
+  min-width: 0;
+  font-size: var(--text-sm);
+  font-weight: 550;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.settings-cat-meta {
+  font-size: var(--text-xs);
+  color: var(--text-mid);
+}
+
+.settings-cat-edit {
+  color: var(--text-dim);
+  flex: none;
+}
+
+.settings-cat-row:hover .settings-cat-edit {
+  color: var(--text-mid);
+}
+
 .settings-account {
   display: flex;
   align-items: center;
@@ -41,4 +112,18 @@
   color: var(--text-mid);
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+@media (max-width: 480px) {
+  .settings-section {
+    padding: 16px;
+  }
+
+  .settings-account {
+    flex-wrap: wrap;
+  }
+
+  .settings-account .btn {
+    width: 100%;
+  }
 }

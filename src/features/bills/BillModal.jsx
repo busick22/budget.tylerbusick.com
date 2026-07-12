@@ -63,7 +63,7 @@ export default function BillModal({ bill, onClose }) {
   }
 
   return (
-    <Modal onClose={onClose}>
+    <Modal onClose={onClose} label={isNew ? 'New bill' : 'Edit bill'}>
       <h3>{isNew ? 'New bill' : 'Edit bill'}</h3>
 
       <form onSubmit={onSave} className="billmodal-form">

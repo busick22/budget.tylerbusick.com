@@ -3,7 +3,7 @@ node_modules/
 dist/
 dev-dist/
 
-# Local env (will hold secrets like the Anthropic API key reference)
+# Local env
 .env
 .env.local
 
@@ -11,7 +11,14 @@ dev-dist/
 .firebase/
 firebase-debug.log
 firestore-debug.log
-functions/.env
+
+# Local statement files and generated import data
+import/*.csv
+import/*.json
+import/[0-9][0-9][0-9][0-9]-[0-9][0-9]*
+!import/CATEGORIZE.md
+!import/README.md
+!import/merchant-rules.md
 
 # OS noise
 .DS_Store

@@ -3,7 +3,7 @@
   "private": true,
   "version": "0.1.0",
   "type": "module",
-  "description": "Budget — personal budgeting: category limits, AI statement import, bills, goals, and debt payoff.",
+  "description": "Budget — personal budgeting: category limits, prepared statement import, bills, goals, and debt payoff.",
   "scripts": {
     "dev": "vite",
     "build": "vite build",

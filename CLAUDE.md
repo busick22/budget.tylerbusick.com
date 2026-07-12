@@ -4,8 +4,8 @@ A personal budgeting PWA with five areas: **Dashboard, Spending, Bills,
 Income, Debt** (savings goals live as a section on Income). One Firebase owner account. The core method is **category
 limits**: the owner sets his own categories with a monthly limit each, and
 the dashboard shows spend vs. limit. Transactions come in two ways: typed by
-hand, or via **CSV upload where Claude (the Anthropic API) normalizes and
-categorizes a whole bank statement for review before saving**.
+hand, or via **prepared JSON import** where the app loads a local file for
+review before saving.
 
 - **Stack:** React 18 + Vite, React Router, Firebase, `lucide-react` icons.
   Installable PWA (`vite-plugin-pwa`). Deliberately mirrors the Accomplish
@@ -13,9 +13,9 @@ categorizes a whole bank statement for review before saving**.
   `../accomplish` does it.
 - **Firebase project:** `busick-budget` (config pasted into
   `src/firebase.js` on 2026-07-10).
-- **Firebase services (planned):** Auth (sign-in), Firestore (categories,
-  transactions, bills, goals, debts, settings), Functions (phase 3 only: the
-  AI categorizer that holds the Anthropic API key server-side).
+- **Firebase services:** Auth (sign-in) and Firestore (categories,
+  transactions, bills, goals, debts, settings). There is no Functions backend
+  in the current app.
 - **Live URL (eventually):** budget.tylerbusick.com.
 
 ## Talking to the owner (read this first)
@@ -38,12 +38,9 @@ language:
    placeholder pages.
 2. **Phase 2 — categories & manual money** ✅: owner-defined categories with
    monthly limits, manual add/edit transactions, dashboard gauges.
-3. **Phase 3 — statement import.** TWO paths into the same review screen:
-   (a) **Prepared file (primary, free):** an AI assistant (Claude Code or
-   Codex) runs the `/categorize` command → writes `import/<YYYY-MM>.json` →
-   app's "Load a prepared file" reads it (no cost, no backend). (b) **AI CSV
-   (optional, dormant):** upload raw CSV → Cloud Function → Anthropic API.
-   The owner chose (a) to avoid API credits; (b) stays built but unused.
+3. **Phase 3 — statement import.** Prepared file only:
+   `import/<YYYY-MM>.json` → app's "Load a prepared file" → review screen.
+   No raw CSV upload, no Cloud Function, no Anthropic/API integration.
 4. **Phase 4 — trackers** ✅: recurring bills with due dates, savings goals,
    debt payoff.
 
@@ -187,11 +184,10 @@ language:
     view subtotals (Gas $81.09, Restaurants $71.55 ✓) with Uncategorized
     last; filter dropdown; mobile toolbar wraps cleanly. Lint + build clean,
     zero console errors, committed.
-- **2026-07-11 — Free "prepared file" import added (the owner's chosen path;
-  avoids API credits entirely). Built + verified in-browser.** Rationale:
-  the owner already pays for Claude Code / Codex, so the AI categorizing
-  happens THERE (under subscription), and the app just loads the result —
-  no Anthropic API credits, no Blaze needed for this path.
+- **2026-07-11 — Prepared-file import added (the owner's chosen path).
+  Built + verified in-browser.** Rationale: the app only loads a prepared
+  JSON file from disk; there is no backend import service, no API key, and no
+  Blaze requirement for this path.
   - **Repo-side (tool-neutral, works with Claude Code AND Codex):**
     `import/CATEGORIZE.md` is the canonical recipe (generic language, not
     Claude-specific; scoped to read ONLY the named CSV + merchant-rules,
@@ -217,10 +213,8 @@ language:
   - **App changes:** `lib/importer.js` gained `parsePreparedFile(text,
     categories)` (JSON parse, array-or-{transactions}, dollars→cents via
     parseToCents, name→id resolve, money-in coerce; renamed the size const
-    to `MAX_IMPORT_BYTES`). `ImportModal.jsx` pick step now offers TWO
-    entries: "Load a prepared file (.json)" (primary, instant→review) and a
-    quieter "Upload a raw CSV … with the built-in AI" (the dormant Function
-    path, labeled as needing setup + costing cents). Review/save unchanged.
+    to `MAX_IMPORT_BYTES`). `ImportModal.jsx` offers "Load a prepared file
+    (.json)" and goes straight to review. Review/save unchanged.
   - **Verified** (fixtures since removed; grep clean): loaded a canned
     `2026-07.json` with names+dollars+a money-in row+an unmatched category
     ("Pets") → names resolved to the right ids, "Pets"→Uncategorized,
@@ -232,43 +226,13 @@ language:
     first), load the JSON, confirm the round-trip. Still pending from
     before: real sign-in QA (phases 2+4 against live Firestore) and the
     first `firebase deploy`.
-- **2026-07-10 — Phase 3 CODE-COMPLETE (the only untested seam is the live
-  Claude call — blocked on owner setup, SETUP.md §6).**
-  - **Backend** (`functions/index.js`, the app's first backend): one
-    callable `categorizeStatement` (v2 onCall, us-central1, 120s timeout,
-    secret `ANTHROPIC_API_KEY` via defineSecret). Takes {csvText,
-    categories:[{id,name}]}, requires auth, caps CSV at 300KB. Calls
-    `claude-opus-4-8` with **structured outputs**
-    (`output_config.format` json_schema, additionalProperties:false) so
-    the reply always parses: rows of {date YYYY-MM-DD, description
-    (cleaned merchant), amountCents (positive int), categoryId|null,
-    isMoneyIn}. Prompt handles varied bank CSV layouts/sign conventions,
-    skips headers/balance columns/pending dupes, never force-matches a
-    category. Server re-validates every row (regex date, int cents,
-    known categoryId) and handles refusal/max_tokens stop reasons.
-    `firebase.json` got its functions block; `src/firebase.js` now exports
-    `functions`.
-  - **Client:** `lib/importer.js` is the seam (httpsCallable, 120s);
-    `ImportModal.jsx` in spending = pick (file input, 300KB cap) →
-    working (sparkle + spinner) → review (per-row include checkbox +
-    category select + amount; money-in rows auto-unticked with green
-    MONEY IN badge; live count/total in blurb; Save loops
-    addTransaction). Import button (Sparkles icon) sits next to Add on
-    Spending.
-  - **Verified with fixtures (since removed; grep clean):** full
-    pick→working→review flow via DataTransfer-injected file + canned
-    categorizeCsv reply — untick recount ($143.46→$126.61 ✓), category
-    reassignment sticks, money-in exclusion. Lint + build clean. **CSS
-    gotcha recorded:** base.css loads AFTER feature css in dev, so
-    `.field{width:100%}` beat `.import-row-cat` — fixed with the doubled
-    selector `.import-row .import-row-cat` (same trick Accomplish's
-    calendar needed).
-  - **NOT verified:** the real Function call (needs Blaze + the secret +
-    `firebase deploy --only functions`) and real-bank CSV quality. First
-    live import should be QA'd against a real statement; tune the system
-    prompt in functions/index.js if categorization disappoints.
+- **2026-07-11 — Removed the old API-backed import path.** The earlier
+  Functions/Anthropic concept was removed from source and deploy config:
+  `functions/` deleted, `firebase.json` no longer deploys Functions,
+  `src/firebase.js` no longer exports Functions, and `ImportModal.jsx` no
+  longer offers raw CSV upload. Prepared JSON import remains.
 - **2026-07-10 — Phase 4 built and verified in-browser (built out of order:
-  Phase 3 is blocked on owner setup — Blaze plan + Anthropic API key).**
+  Phase 3 was still evolving at the time).**
   The three trackers, all under `users/{uid}/`:
   - **Bills** (`bills`: {name, amountCents, dueDay 1–31, note,
     paidMonths: ['2026-07',...]}): due-day-sorted list, per-month paid
@@ -290,13 +254,8 @@ language:
     (+$69.99 ✓), goal add-money (+$100 ✓ card + page totals), debt payment
     ($320 → balance $5,800 ✓), done-states for goal and debt, due-day
     ordinals. Lint + build clean, zero console errors.
-  - **Remaining work, in order:** (1) owner signs in (real Chrome —
-    embedded pane blocks popups AND redirects) and QAs phases 2+4 against
-    real Firestore; (2) `git init` + first commit; (3) first deploy
-    (SETUP.md step 5); (4) **Phase 3 — CSV + AI import** (the only
-    unbuilt phase): needs owner's Blaze upgrade + Anthropic API key, then
-    build the Cloud Function (holds the key, calls Claude to
-    normalize/categorize CSV rows) + upload/review UI in Spending.
+  - **Historical note:** at this point Phase 3 was not settled yet; the
+    current app uses prepared JSON import only.
 - **2026-07-10 — Phase 2 built and verified in-browser (UI + Firestore
   wiring; real-data QA pending owner sign-in).** Categories with monthly
   limits + manual transactions + dashboard gauges, all live-updating:
@@ -332,7 +291,7 @@ language:
     popup AND the redirect hop) and creates his real categories; first
     real transactions QA the Firestore path end to end. Then `git init` +
     first commit, first deploy (`firebase deploy` — SETUP.md step 5), and
-    Phase 3 (CSV + AI import) when he's ready.
+    prepared-file import when he's ready.
 - **2026-07-10 — Phase 1 built and verified in-browser.** Full foundation
   from scratch, mirroring Accomplish's bones with Budget's own green
   identity: tokens/base design system (both themes), sign-in page (email +

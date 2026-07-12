@@ -64,7 +64,7 @@ export default function AccountModal({ account, onClose }) {
   }
 
   return (
-    <Modal onClose={onClose}>
+    <Modal onClose={onClose} label={isNew ? 'New account' : 'Edit account'}>
       <h3>{isNew ? 'New account' : 'Edit account'}</h3>
 
       <form onSubmit={onSave} className="catmodal-form">

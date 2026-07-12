@@ -44,7 +44,7 @@
 
 .signin-brand h1 {
   font-size: var(--text-2xl);
-  letter-spacing: -0.02em;
+  letter-spacing: 0;
 }
 
 .signin-brand p {
@@ -93,7 +93,7 @@
   color: var(--text-dim);
   font-size: var(--text-xs);
   text-transform: uppercase;
-  letter-spacing: 0.08em;
+  letter-spacing: 0;
 }
 
 .signin-divider::before,
@@ -114,5 +114,23 @@
   text-align: center;
   color: var(--text-dim);
   font-size: var(--text-xs);
-  letter-spacing: 0.04em;
+  letter-spacing: 0;
+}
+
+@media (max-width: 520px) {
+  .signin {
+    align-items: stretch;
+    padding: max(env(safe-area-inset-top, 0px), 16px) 16px
+      max(env(safe-area-inset-bottom, 0px), 16px);
+    overflow-y: auto;
+  }
+
+  .signin-card {
+    margin: auto 0;
+    padding: 28px 20px 22px;
+  }
+
+  .signin-brand {
+    margin-bottom: 22px;
+  }
 }

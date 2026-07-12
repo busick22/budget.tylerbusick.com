@@ -50,6 +50,19 @@ export default function SignInPage() {
           </p>
         )}
 
+        <button
+          className="btn signin-google"
+          onClick={() => run(signInWithGoogle)}
+          disabled={busy}
+        >
+          <GoogleGlyph />
+          Continue with Google
+        </button>
+
+        <div className="signin-divider" role="presentation">
+          <span>or use email</span>
+        </div>
+
         <form onSubmit={onSubmit} className="signin-form">
           <label className="field-label" htmlFor="signin-email">
             Email
@@ -84,20 +97,7 @@ export default function SignInPage() {
           </button>
         </form>
 
-        <div className="signin-divider" role="presentation">
-          <span>or</span>
-        </div>
-
-        <button
-          className="btn signin-google"
-          onClick={() => run(signInWithGoogle)}
-          disabled={busy}
-        >
-          <GoogleGlyph />
-          Continue with Google
-        </button>
-
-        <p className="signin-foot">Private workspace · one owner</p>
+        <p className="signin-foot">Your data stays private to your account</p>
       </div>
     </div>
   )

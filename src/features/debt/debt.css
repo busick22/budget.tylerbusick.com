@@ -42,3 +42,19 @@
 .debtmodal-actions-gap {
   flex: 1;
 }
+
+@media (max-width: 640px) {
+  .debt-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .debtmodal-row {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 420px) {
+  .debtmodal-actions {
+    flex-wrap: wrap;
+  }
+}

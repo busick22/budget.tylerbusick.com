@@ -6,13 +6,13 @@ import { Plus, CalendarClock, Check } from 'lucide-react'
 import MonthSwitcher from '../../components/MonthSwitcher.jsx'
 import BillModal from './BillModal.jsx'
 import { useBills } from '../../state/BillsContext.jsx'
-import { currentMonthKey } from '../../lib/dates.js'
+import { useMonth } from '../../state/MonthContext.jsx'
 import { formatCents } from '../../lib/money.js'
 import './bills.css'
 
 export default function BillsPage() {
   const { bills, setPaid } = useBills()
-  const [month, setMonth] = useState(currentMonthKey)
+  const { month, setMonth } = useMonth()
   const [editing, setEditing] = useState(null) // null | 'new' | bill object
 
   const monthTotal = bills.reduce((a, b) => a + b.amountCents, 0)
@@ -30,22 +30,18 @@ export default function BillsPage() {
       <header className="page-head">
         <h1 className="page-title">
           Bills
-          <small>
-            {bills.length === 0 ? (
-              'Recurring bills & subscriptions'
-            ) : (
-              <>
-                <span className="amount">{formatCents(paidTotal)}</span> paid of{' '}
-                <span className="amount">{formatCents(monthTotal)}</span> / month
-              </>
-            )}
-          </small>
+          {bills.length > 0 && (
+            <small>
+              <span className="amount">{formatCents(paidTotal)}</span> paid of{' '}
+              <span className="amount">{formatCents(monthTotal)}</span> / month
+            </small>
+          )}
         </h1>
+        <MonthSwitcher month={month} onChange={setMonth} />
         <div className="bills-head-actions">
-          <MonthSwitcher month={month} onChange={setMonth} />
           <button className="btn btn-primary" onClick={() => setEditing('new')}>
             <Plus size={16} aria-hidden="true" />
-            Add
+            New bill
           </button>
         </div>
       </header>

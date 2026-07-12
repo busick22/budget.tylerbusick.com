@@ -46,25 +46,15 @@ firebase deploy                    # hosting + Firestore rules
 
 The app is then live at `https://<project-id>.web.app`.
 
-## 6. The AI import (the code is built — these steps switch it on)
+## 6. Statement import
 
-1. **Blaze plan** — Firebase console → bottom-left "Upgrade" → Blaze
-   (pay-as-you-go). Needed for Cloud Functions; normal usage for this app
-   stays inside the free allowance.
-2. **Anthropic API key** — [console.anthropic.com](https://console.anthropic.com)
-   → sign up → API keys → Create key. Add a few dollars of credit
-   (a monthly statement costs pennies to process).
-3. **Store the key server-side** (it never goes in the app code). From the
-   `budget/` folder:
+The app imports prepared `.json` files only. There is no backend import service,
+no API key, and no Blaze upgrade needed for import.
 
-   ```sh
-   firebase functions:secrets:set ANTHROPIC_API_KEY
-   # paste the key when prompted
-   cd functions && npm install && cd ..
-   firebase deploy --only functions
-   ```
-
-4. Reload the app → Spending → **Import** → choose a CSV from your bank.
+1. Create or export a prepared import file in the shape described in
+   [`import/README.md`](import/README.md).
+2. Reload the app → Spending → **Import** → choose that `.json` file.
+3. Review the rows, untick anything you want to skip, then save.
 
 ## 7. Later (not needed yet)
 

@@ -19,20 +19,16 @@ export default function DebtPage() {
   const totalStarting = debts.reduce((a, d) => a + d.startingCents, 0)
 
   return (
-    <div className="page page-enter" data-page="debt">
+    <div className="page page-enter" data-page="debt" data-scroll="locked">
       <header className="page-head">
         <h1 className="page-title">
           Debt
-          <small>
-            {debts.length === 0 ? (
-              'Paying it down'
-            ) : (
-              <>
-                <span className="amount">{formatCents(totalLeft)}</span> left of{' '}
-                <span className="amount">{formatCents(totalStarting)}</span>
-              </>
-            )}
-          </small>
+          {debts.length > 0 && (
+            <small>
+              <span className="amount">{formatCents(totalLeft)}</span> left of{' '}
+              <span className="amount">{formatCents(totalStarting)}</span>
+            </small>
+          )}
         </h1>
         <button className="btn btn-primary" onClick={() => setEditing('new')}>
           <Plus size={16} aria-hidden="true" />
@@ -40,30 +36,32 @@ export default function DebtPage() {
         </button>
       </header>
 
-      {debts.length === 0 ? (
-        <div className="empty-state">
-          <TrendingDown aria-hidden="true" />
-          <p>
-            Track a loan or card balance here and log payments as you make
-            them — the bar fills up as the debt goes down.
-          </p>
-          <button className="btn" onClick={() => setEditing('new')}>
-            <Plus size={15} aria-hidden="true" />
-            Add a debt
-          </button>
-        </div>
-      ) : (
-        <div className="debt-grid">
-          {debts.map((debt) => (
-            <DebtCard
-              key={debt.id}
-              debt={debt}
-              onEdit={() => setEditing(debt)}
-              onPay={() => setPaying(debt)}
-            />
-          ))}
-        </div>
-      )}
+      <div className="page-scroll">
+        {debts.length === 0 ? (
+          <div className="empty-state">
+            <TrendingDown aria-hidden="true" />
+            <p>
+              Track a loan or card balance here and log payments as you make
+              them — the bar fills up as the debt goes down.
+            </p>
+            <button className="btn" onClick={() => setEditing('new')}>
+              <Plus size={15} aria-hidden="true" />
+              Add a debt
+            </button>
+          </div>
+        ) : (
+          <div className="debt-grid">
+            {debts.map((debt) => (
+              <DebtCard
+                key={debt.id}
+                debt={debt}
+                onEdit={() => setEditing(debt)}
+                onPay={() => setPaying(debt)}
+              />
+            ))}
+          </div>
+        )}
+      </div>
 
       {editing && (
         <DebtModal debt={editing === 'new' ? null : editing} onClose={() => setEditing(null)} />
@@ -155,7 +153,7 @@ function PaymentModal({ debt, onClose }) {
   }
 
   return (
-    <Modal onClose={onClose} width={340}>
+    <Modal onClose={onClose} width={340} label={`Payment on ${debt.name}`}>
       <h3>Payment on {debt.name}</h3>
       <form onSubmit={onSubmit} className="debtmodal-form">
         <div>

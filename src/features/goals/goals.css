@@ -132,3 +132,31 @@
 .goalmodal-actions-gap {
   flex: 1;
 }
+
+@media (max-width: 640px) {
+  .goals-section-head {
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+
+  .goals-section-head .panel-title {
+    flex: 1;
+    min-width: 190px;
+    flex-wrap: wrap;
+  }
+
+  .goals-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .goalmodal-row {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 420px) {
+  .goal-foot,
+  .goalmodal-actions {
+    flex-wrap: wrap;
+  }
+}

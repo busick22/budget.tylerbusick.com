@@ -4,6 +4,7 @@ import { BrowserRouter } from 'react-router-dom'
 import App from './App.jsx'
 import { AuthProvider } from './state/AuthContext.jsx'
 import { SettingsProvider } from './state/SettingsContext.jsx'
+import { MonthProvider } from './state/MonthContext.jsx'
 import { AccountsProvider } from './state/AccountsContext.jsx'
 import { CategoriesProvider } from './state/CategoriesContext.jsx'
 import { TransactionsProvider } from './state/TransactionsContext.jsx'
@@ -18,19 +19,21 @@ createRoot(document.getElementById('root')).render(
     <BrowserRouter>
       <AuthProvider>
         <SettingsProvider>
-          <AccountsProvider>
-            <CategoriesProvider>
-              <TransactionsProvider>
-                <BillsProvider>
-                  <GoalsProvider>
-                    <DebtsProvider>
-                      <App />
-                    </DebtsProvider>
-                  </GoalsProvider>
-                </BillsProvider>
-              </TransactionsProvider>
-            </CategoriesProvider>
-          </AccountsProvider>
+          <MonthProvider>
+            <AccountsProvider>
+              <CategoriesProvider>
+                <TransactionsProvider>
+                  <BillsProvider>
+                    <GoalsProvider>
+                      <DebtsProvider>
+                        <App />
+                      </DebtsProvider>
+                    </GoalsProvider>
+                  </BillsProvider>
+                </TransactionsProvider>
+              </CategoriesProvider>
+            </AccountsProvider>
+          </MonthProvider>
         </SettingsProvider>
       </AuthProvider>
     </BrowserRouter>

@@ -142,179 +142,115 @@
   color: var(--money-out);
 }
 
-/* --- Summary strip (spending vs limits) --------------------------------------- */
+/* --- Overview cards (one summary card per area) ------------------------------- */
 
-.dash-summary {
-  display: flex;
-  gap: 10px;
-  padding: 16px 20px;
-  margin-bottom: 16px;
-}
-
-.dash-summary > div {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.dash-summary strong {
-  font-size: var(--text-lg);
-}
-
-.dash-summary [data-over='true'] strong,
-.dash-summary > div[data-over='true'] strong {
-  color: var(--danger);
-}
-
-/* --- Gauge grid ---------------------------------------------------------------- */
-
-.dash-grid {
+.dash-overview {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
   gap: 12px;
 }
 
-.dash-gauge {
-  padding: 16px 18px;
+.dash-card {
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  cursor: pointer;
+  gap: 5px;
+  padding: 16px 18px;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
   transition:
     border-color var(--speed-fast) var(--ease-out),
-    background var(--speed-fast) var(--ease-out);
+    background var(--speed-fast) var(--ease-out),
+    transform var(--speed-fast) var(--ease-out);
 }
 
-.dash-gauge:hover {
+.dash-card:hover {
   border-color: var(--border-strong);
   background: var(--surface-2);
 }
 
-.dash-gauge-head {
+.dash-card:active {
+  transform: scale(0.99);
+}
+
+.dash-card-head {
   display: flex;
   align-items: center;
   gap: 9px;
+  margin-bottom: 2px;
 }
 
-.dash-gauge-head h3 {
+.dash-card-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  flex: none;
+  border-radius: var(--radius-md);
+  color: var(--card-accent, var(--accent));
+  background: color-mix(in srgb, var(--card-accent, var(--accent)) 15%, transparent);
+}
+
+.dash-card-label {
   flex: 1;
   min-width: 0;
-  font-size: var(--text-md);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--text-mid);
 }
 
-.dash-gauge-head .icon-btn {
-  width: 28px;
-  height: 28px;
-  opacity: 0;
-  transition: opacity var(--speed-fast) var(--ease-out);
-}
-
-.dash-gauge:hover .icon-btn,
-.dash-gauge .icon-btn:focus-visible {
-  opacity: 1;
-}
-
-/* Touch screens have no hover — keep the edit pencil visible. */
-@media (hover: none) {
-  .dash-gauge-head .icon-btn {
-    opacity: 1;
-  }
-}
-
-.dash-gauge-dot {
-  width: 9px;
-  height: 9px;
+.dash-card-arrow {
   flex: none;
-  border-radius: 3px;
-  background: var(--cat);
+  color: var(--text-dim);
+  transition: transform var(--speed-fast) var(--ease-out);
 }
 
-.dash-gauge-nums {
-  display: flex;
-  align-items: baseline;
-  gap: 7px;
+.dash-card:hover .dash-card-arrow {
+  transform: translateX(2px);
+  color: var(--text-mid);
 }
 
-.dash-gauge-nums strong {
+.dash-card-headline {
   font-size: var(--text-xl);
   font-family: var(--font-display);
+  line-height: 1.1;
 }
 
-.dash-gauge-nums span {
+.dash-card-sub {
   font-size: var(--text-sm);
   color: var(--text-mid);
 }
 
-.dash-gauge-bar {
-  height: 8px;
+.dash-card-bar {
+  height: 7px;
   border-radius: var(--radius-full);
   background: var(--surface-3);
   overflow: hidden;
+  margin-top: 7px;
 }
 
-.dash-gauge-fill {
+.dash-card-fill {
   height: 100%;
   border-radius: var(--radius-full);
-  background: var(--cat);
+  background: var(--card-accent, var(--accent));
   transition: width var(--speed-slow) var(--ease-out);
 }
 
-.dash-gauge[data-near='true'] .dash-gauge-fill {
-  background: var(--accent-spending);
-}
-
-.dash-gauge[data-over='true'] .dash-gauge-fill {
+/* Spending past its total limit turns the bar red. */
+.dash-card[data-tone='over'] .dash-card-fill {
   background: var(--danger);
 }
 
-.dash-gauge-foot {
-  font-size: var(--text-sm);
-  color: var(--text-mid);
-}
-
-.dash-gauge[data-over='true'] .dash-gauge-foot {
-  color: var(--danger);
-}
-
-/* --- New-category tile ----------------------------------------------------------- */
-
-.dash-add {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  min-height: 120px;
-  padding: 16px;
-  border-style: dashed;
+.dash-card-note {
+  font-size: var(--text-xs);
   color: var(--text-dim);
-  font-size: var(--text-sm);
-  font-weight: 550;
-  transition:
-    color var(--speed-fast) var(--ease-out),
-    border-color var(--speed-fast) var(--ease-out),
-    background var(--speed-fast) var(--ease-out);
+  margin-top: 3px;
 }
 
-.dash-add:hover {
-  color: var(--accent);
-  border-color: var(--accent);
-  background: var(--accent-soft);
-}
-
-.dash-add svg {
-  width: 20px;
-  height: 20px;
-}
-
-.dash-uncat {
-  margin-top: 16px;
-  font-size: var(--text-sm);
-  color: var(--text-mid);
+.dash-card[data-tone='over'] .dash-card-note {
+  color: var(--danger);
 }
 
 /* --- Category modal ------------------------------------------------------------- */
@@ -357,4 +293,45 @@
 
 .catmodal-actions-gap {
   flex: 1;
+}
+
+@media (max-width: 640px) {
+  /* Dashboard has an extra settings gear, so title + switcher + gear won't
+     fit one row. Keep the switcher/gear on their own row: month switcher
+     left, gear pinned right (no awkward full-width stretch). */
+  .dash-head-actions {
+    justify-content: space-between;
+  }
+
+  .dash-cashflow {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    padding: 14px 16px;
+  }
+
+  .dash-overview {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 420px) {
+  .dash-accounts {
+    padding: 14px 16px;
+  }
+
+  .dash-accounts-head {
+    align-items: flex-start;
+  }
+
+  .dash-balance {
+    font-size: var(--text-lg);
+  }
+
+  .dash-cashflow strong {
+    font-size: var(--text-md);
+  }
+
+  .catmodal-actions {
+    flex-wrap: wrap;
+  }
 }

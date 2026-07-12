@@ -45,7 +45,7 @@ h1, h2, h3, h4 {
   margin: 0;
   font-family: var(--font-display);
   font-weight: 600;
-  letter-spacing: -0.015em;
+  letter-spacing: 0;
 }
 
 p { margin: 0; }
@@ -137,6 +137,12 @@ a {
   box-shadow: 0 0 24px 0 var(--accent-glow);
 }
 
+/* Compact button — for tucked-in actions like a section's "New". */
+.btn-sm {
+  padding: 6px 12px;
+  font-size: var(--text-xs);
+}
+
 .btn-ghost {
   background: transparent;
   border-color: transparent;
@@ -191,7 +197,7 @@ a {
   display: block;
   font-size: var(--text-xs);
   font-weight: 600;
-  letter-spacing: 0.06em;
+  letter-spacing: 0;
   text-transform: uppercase;
   color: var(--text-dim);
   margin-bottom: 6px;
@@ -212,7 +218,7 @@ a {
   font-family: var(--font-display);
   font-size: var(--text-xs);
   font-weight: 600;
-  letter-spacing: 0.09em;
+  letter-spacing: 0;
   text-transform: uppercase;
   color: var(--text-dim);
 }
@@ -286,6 +292,7 @@ a {
 }
 
 .modal {
+  position: relative;
   width: min(440px, 100%);
   max-height: min(640px, 90vh);
   overflow-y: auto;
@@ -295,6 +302,17 @@ a {
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-pop);
   animation: rise-in var(--speed-med) var(--ease-out);
+}
+
+.modal-close {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  z-index: 1;
+}
+
+.modal > h3:first-of-type {
+  padding-right: 36px;
 }
 
 .modal h3 {
@@ -344,6 +362,11 @@ a {
 }
 .empty-state svg { width: 22px; height: 22px; opacity: 0.6; }
 
+.page-scroll > .empty-state {
+  min-height: min(360px, 70%);
+  justify-content: center;
+}
+
 .error-note {
   padding: 10px 14px;
   border-radius: var(--radius-md);
@@ -357,7 +380,35 @@ a {
 .amount {
   font-family: var(--font-display);
   font-variant-numeric: tabular-nums;
-  letter-spacing: -0.01em;
+  letter-spacing: 0;
+}
+
+@media (max-width: 520px) {
+  .modal-backdrop {
+    align-items: flex-end;
+    padding: 0;
+  }
+
+  .modal {
+    width: 100% !important;
+    max-height: 92dvh;
+    padding: 22px 18px calc(22px + env(safe-area-inset-bottom, 0px));
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  }
+
+  .modal-close {
+    top: 12px;
+    right: 12px;
+  }
+
+  .btn {
+    min-height: 42px;
+  }
+
+  .icon-btn {
+    width: 40px;
+    height: 40px;
+  }
 }
 
 /* --- Animations ------------------------------------------------------------------- */

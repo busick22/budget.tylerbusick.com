@@ -19,7 +19,9 @@ anything unclear, write the output, update the memory file, and stop.
 
 1. **Read `import/merchant-rules.md`.**
    - The **Categories** section is the ONLY set of category names you may
-     assign to a purchase.
+     assign to spending.
+   - The optional **Income sources** section lists the names you may assign to
+     money coming in. If no source matches, use `null`.
    - The **Rules** section is past decisions — reuse them.
    - If the Categories section is empty or still shows the sample list,
      confirm with the person that those are really the categories they use in
@@ -35,9 +37,13 @@ anything unclear, write the output, update the memory file, and stop.
    - **description** — the merchant/purpose cleaned to how a person would say
      it (e.g. "Hy-Vee" from `HY-VEE #1043 TRENTON MO POS`)
    - **amount** — in dollars, always positive (e.g. `64.12`)
-   - **isMoneyIn** — `true` if it's money coming IN (deposit, refund, payment
-     received) rather than spending
-   - **category** — the best-fitting category NAME from the Categories list:
+   - **isMoneyIn** — `true` if it's money coming IN (deposit, payroll, refund,
+     or payment received) rather than spending. This is important: the app
+     sends these rows to its Income tab instead of counting them as spending.
+   - **category** — the best-fitting category/source NAME:
+     - For spending, use only a name from **Categories**.
+     - For money coming in, use only a name from **Income sources**, or `null`
+       when no source fits.
      - If a Rule already covers this merchant, use it.
      - If it's obvious, assign it.
      - **If it's unclear, ambiguous, or could fit two categories, DO NOT
@@ -69,7 +75,8 @@ anything unclear, write the output, update the memory file, and stop.
 ```
 
 - `amount` is always a positive dollar number (not cents).
-- `category` is a name from the Categories list, or `null` if none fits.
+- `category` is an expense category for spending, an income source for money
+  coming in, or `null` if none fits.
 - `isMoneyIn` is `false` for normal spending.
 
 ## When you're done

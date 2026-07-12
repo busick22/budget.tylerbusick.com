@@ -40,16 +40,27 @@ Childcare
 Pets
 Ashlen
 
+## Income sources
+
+Income source names from the Budget app, such as Paycheck or Side gig. Income
+still imports when this list is empty; it appears as Unassigned on the Income
+tab instead of being counted as spending.
+
 ## Rules
 
-Merchant → Category, learned over time. The command adds a line here whenever
-you answer a question about an unclear purchase, so it won't ask again. Kept
-alphabetical.
+Merchant → Category or income source, learned over time. The command adds a
+line here whenever you answer a question about an unclear transaction, so it
+won't ask again. Kept alphabetical.
 
+- BARCLAYCARD US CREDITCARD → IGNORE (credit card payment; already handled in card statement)
+- Check #851 → Electric, Sewer, Water, Trash
+- DEPT EDUCATION STUDENT LN → MISC
 - DNCSS ST. LOUIS BB CON → Restaurants
 - FW* TABNO → MISC
+- IBMC WEB PMTS → House Payment
 - KANSAS CITY ZOO → Gifts
 - KC ZOO ONLINE → Gifts
+- LIBERTY MO ONLINE PMT → Gas (house)
 - LIBERTY TRIANGLE 124 B → Restaurants
 - LOWES #02459* → House Projects
 - OPENAI *CHATGPT SUBSCR → MISC

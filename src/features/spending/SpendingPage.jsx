@@ -6,17 +6,19 @@
 // set them all to a category at once, or delete them (with a confirm). Handy
 // for cleaning up a whole imported batch.
 //
-// The Dashboard can send you here pre-filtered to a category (or to
-// Uncategorized) via router state — that's the "drill into this gauge" flow.
+// Another page can send you here pre-filtered to a category (or to
+// Uncategorized) by passing { categoryId } in router state.
 
 import { useMemo, useState } from 'react'
 import { useLocation } from 'react-router-dom'
-import { Plus, Receipt, Sparkles, CalendarDays, Tag, ListChecks, Check } from 'lucide-react'
+import { Plus, Receipt, FileUp, CalendarDays, Tag, ListChecks, Check, FolderPlus } from 'lucide-react'
 import MonthSwitcher from '../../components/MonthSwitcher.jsx'
 import TransactionModal from './TransactionModal.jsx'
 import ImportModal from './ImportModal.jsx'
+import CategoryModal from '../dashboard/CategoryModal.jsx'
 import { useCategories } from '../../state/CategoriesContext.jsx'
 import { useTransactions } from '../../state/TransactionsContext.jsx'
+import { useMonth } from '../../state/MonthContext.jsx'
 import { currentMonthKey, formatDay, todayKey } from '../../lib/dates.js'
 import { formatCents } from '../../lib/money.js'
 import { colorHex } from '../../lib/palette.js'
@@ -29,11 +31,13 @@ export default function SpendingPage() {
   const { forMonth, deleteMany, setCategoryMany } = useTransactions()
   const location = useLocation()
 
-  // A drill-in from the Dashboard arrives with { categoryId, month } in state.
-  const [month, setMonth] = useState(location.state?.month ?? currentMonthKey())
+  // The month is shared app-wide; a drill-in from the Dashboard just pre-sets
+  // the category filter via router state.
+  const { month, setMonth } = useMonth()
   const [filterCat, setFilterCat] = useState(location.state?.categoryId ?? 'all')
   const [viewMode, setViewMode] = useState('day') // 'day' | 'category'
   const [editing, setEditing] = useState(null) // null | 'new' | transaction object
+  const [editingCategory, setEditingCategory] = useState(null) // null | 'new'
   const [importing, setImporting] = useState(false)
 
   // Select mode.
@@ -156,27 +160,27 @@ export default function SpendingPage() {
       <header className="page-head">
         <h1 className="page-title">
           Spending
-          <small>
-            {monthTx.length === 0 ? (
-              'No transactions this month'
-            ) : (
-              <>
-                {filterName ? `${filterName}: ` : ''}
-                {filtered.length} transaction{filtered.length === 1 ? '' : 's'} ·{' '}
-                <span className="amount">{formatCents(filteredTotal)}</span>
-              </>
-            )}
-          </small>
+          {monthTx.length > 0 && (
+            <small>
+              {filterName ? `${filterName}: ` : ''}
+              {filtered.length} transaction{filtered.length === 1 ? '' : 's'} ·{' '}
+              <span className="amount">{formatCents(filteredTotal)}</span>
+            </small>
+          )}
         </h1>
+        <MonthSwitcher month={month} onChange={setMonth} />
         <div className="spend-head-actions">
-          <MonthSwitcher month={month} onChange={setMonth} />
-          <button className="btn" onClick={() => setImporting(true)} title="Load or categorize a statement">
-            <Sparkles size={15} aria-hidden="true" />
+          <button className="btn" onClick={() => setEditingCategory('new')} title="Create a spending category">
+            <FolderPlus size={15} aria-hidden="true" />
+            New category
+          </button>
+          <button className="btn" onClick={() => setImporting(true)} title="Load a prepared statement file">
+            <FileUp size={15} aria-hidden="true" />
             Import
           </button>
           <button className="btn btn-primary" onClick={() => setEditing('new')}>
             <Plus size={16} aria-hidden="true" />
-            Add
+            Add expense
           </button>
         </div>
       </header>
@@ -223,8 +227,8 @@ export default function SpendingPage() {
           <div className="empty-state">
             <Receipt aria-hidden="true" />
             <p>
-              Nothing recorded for this month yet. Add what you spend and the
-              dashboard gauges fill in as you go.
+              Nothing recorded for this month yet. Add what you spend and your
+              dashboard fills in as you go.
             </p>
             <button className="btn" onClick={() => setEditing('new')}>
               <Plus size={15} aria-hidden="true" />
@@ -332,6 +336,12 @@ export default function SpendingPage() {
         />
       )}
       {importing && <ImportModal onClose={() => setImporting(false)} />}
+      {editingCategory && (
+        <CategoryModal
+          category={editingCategory === 'new' ? null : editingCategory}
+          onClose={() => setEditingCategory(null)}
+        />
+      )}
     </div>
   )
 }

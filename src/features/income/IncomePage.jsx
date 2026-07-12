@@ -3,7 +3,6 @@
 // income total sits up top; the Dashboard is where income meets spending (net).
 
 import { useMemo, useState } from 'react'
-import { useLocation } from 'react-router-dom'
 import { Plus, Wallet, Pencil, FolderPlus } from 'lucide-react'
 import MonthSwitcher from '../../components/MonthSwitcher.jsx'
 import TransactionModal from '../spending/TransactionModal.jsx'
@@ -11,6 +10,7 @@ import CategoryModal from '../dashboard/CategoryModal.jsx'
 import GoalsSection from '../goals/GoalsSection.jsx'
 import { useCategories } from '../../state/CategoriesContext.jsx'
 import { useTransactions } from '../../state/TransactionsContext.jsx'
+import { useMonth } from '../../state/MonthContext.jsx'
 import { currentMonthKey, todayKey } from '../../lib/dates.js'
 import { formatCents } from '../../lib/money.js'
 import { colorHex } from '../../lib/palette.js'
@@ -21,9 +21,8 @@ const UNASSIGNED = 'unassigned'
 export default function IncomePage() {
   const { byId } = useCategories()
   const { forMonth } = useTransactions()
-  const location = useLocation()
+  const { month, setMonth } = useMonth()
 
-  const [month, setMonth] = useState(location.state?.month ?? currentMonthKey())
   const [editing, setEditing] = useState(null) // null | 'new' | transaction
   const [editingSource, setEditingSource] = useState(null) // null | 'new' | source
 
@@ -58,26 +57,22 @@ export default function IncomePage() {
   const defaultDate = month === currentMonthKey() ? todayKey() : `${month}-01`
 
   return (
-    <div className="page page-enter" data-page="income">
+    <div className="page page-enter" data-page="income" data-scroll="locked">
       <header className="page-head">
         <h1 className="page-title">
           Income
-          <small>
-            {monthIncome.length === 0 ? (
-              'What’s coming in this month'
-            ) : (
-              <>
-                <span className="amount">{formatCents(total)}</span> in ·{' '}
-                {monthIncome.length} entr{monthIncome.length === 1 ? 'y' : 'ies'}
-              </>
-            )}
-          </small>
+          {monthIncome.length > 0 && (
+            <small>
+              <span className="amount">{formatCents(total)}</span> in ·{' '}
+              {monthIncome.length} entr{monthIncome.length === 1 ? 'y' : 'ies'}
+            </small>
+          )}
         </h1>
+        <MonthSwitcher month={month} onChange={setMonth} />
         <div className="income-head-actions">
-          <MonthSwitcher month={month} onChange={setMonth} />
           <button className="btn" onClick={() => setEditingSource('new')} title="Add an income source">
             <FolderPlus size={15} aria-hidden="true" />
-            Source
+            New source
           </button>
           <button className="btn btn-primary" onClick={() => setEditing('new')}>
             <Plus size={16} aria-hidden="true" />

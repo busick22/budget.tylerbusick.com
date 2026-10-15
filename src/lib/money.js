@@ -11,13 +11,6 @@ export function formatCents(cents) {
   return `${sign}$${dollars.toLocaleString('en-US')}.${rest}`
 }
 
-/** Compact form for tight spots: whole dollars, no cents. 123456 → "$1,235" */
-export function formatCentsShort(cents) {
-  const sign = cents < 0 ? '-' : ''
-  const abs = Math.abs(Math.round(cents / 100))
-  return `${sign}$${abs.toLocaleString('en-US')}`
-}
-
 /**
  * Parse what a person types into cents. Accepts "12", "12.5", "12.34",
  * "$1,234.56", " 8 ". Returns null when it isn't a usable amount.

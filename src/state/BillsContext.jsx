@@ -3,7 +3,7 @@
 //   { name, amountCents, dueDay (1–31), note, paidMonths: ['2026-07', ...], createdAt }
 // "Paid" is tracked per month by pushing the month key into paidMonths.
 
-import { createContext, useContext, useEffect, useMemo, useState } from 'react'
+import { createContext, useContext, useMemo } from 'react'
 import {
   addDoc,
   arrayRemove,
@@ -11,41 +11,19 @@ import {
   collection,
   deleteDoc,
   doc,
-  onSnapshot,
   serverTimestamp,
   updateDoc,
 } from 'firebase/firestore'
 import { db } from '../firebase.js'
 import { useAuth } from './AuthContext.jsx'
+import { useUserCollection } from './useUserCollection.js'
 
 const BillsContext = createContext(null)
+const sortByDueDay = (a, b) => a.dueDay - b.dueDay || a.name.localeCompare(b.name)
 
 export function BillsProvider({ children }) {
   const { user } = useAuth()
-  const [bills, setBills] = useState([])
-  const [loading, setLoading] = useState(true)
-
-  useEffect(() => {
-    if (!user) {
-      setBills([])
-      setLoading(true)
-      return undefined
-    }
-    const ref = collection(db, 'users', user.uid, 'bills')
-    return onSnapshot(
-      ref,
-      (snap) => {
-        const next = snap.docs.map((d) => ({ id: d.id, ...d.data() }))
-        next.sort((a, b) => a.dueDay - b.dueDay || a.name.localeCompare(b.name))
-        setBills(next)
-        setLoading(false)
-      },
-      (err) => {
-        console.error('Bills listener failed:', err)
-        setLoading(false)
-      },
-    )
-  }, [user])
+  const [bills, loading] = useUserCollection(user, 'bills', sortByDueDay, 'Bills')
 
   const value = useMemo(
     () => ({

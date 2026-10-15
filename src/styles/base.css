@@ -250,33 +250,7 @@ a {
   color: var(--accent);
 }
 
-/* --- Menus & modals ------------------------------------------------------------ */
-
-.menu {
-  min-width: 180px;
-  padding: 6px;
-  background: var(--surface-2);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-md);
-  box-shadow: var(--shadow-pop);
-  animation: pop-in var(--speed-fast) var(--ease-out);
-}
-
-.menu-item {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  width: 100%;
-  padding: 8px 10px;
-  border-radius: var(--radius-sm);
-  font-size: var(--text-sm);
-  color: var(--text);
-  text-align: left;
-}
-.menu-item:hover { background: var(--surface-3); }
-.menu-item svg { width: 15px; height: 15px; color: var(--text-mid); }
-.menu-item[data-danger='true'] { color: var(--danger); }
-.menu-item[data-danger='true'] svg { color: var(--danger); }
+/* --- Modals ------------------------------------------------------------------- */
 
 .modal-backdrop {
   position: fixed;

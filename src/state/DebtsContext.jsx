@@ -3,48 +3,26 @@
 //   { name, startingCents (what it began at), balanceCents (what's left),
 //     color (palette key), createdAt }
 
-import { createContext, useContext, useEffect, useMemo, useState } from 'react'
+import { createContext, useContext, useMemo } from 'react'
 import {
   addDoc,
   collection,
   deleteDoc,
   doc,
   increment,
-  onSnapshot,
   serverTimestamp,
   updateDoc,
 } from 'firebase/firestore'
 import { db } from '../firebase.js'
 import { useAuth } from './AuthContext.jsx'
+import { useUserCollection } from './useUserCollection.js'
 
 const DebtsContext = createContext(null)
+const sortByName = (a, b) => a.name.localeCompare(b.name)
 
 export function DebtsProvider({ children }) {
   const { user } = useAuth()
-  const [debts, setDebts] = useState([])
-  const [loading, setLoading] = useState(true)
-
-  useEffect(() => {
-    if (!user) {
-      setDebts([])
-      setLoading(true)
-      return undefined
-    }
-    const ref = collection(db, 'users', user.uid, 'debts')
-    return onSnapshot(
-      ref,
-      (snap) => {
-        const next = snap.docs.map((d) => ({ id: d.id, ...d.data() }))
-        next.sort((a, b) => a.name.localeCompare(b.name))
-        setDebts(next)
-        setLoading(false)
-      },
-      (err) => {
-        console.error('Debts listener failed:', err)
-        setLoading(false)
-      },
-    )
-  }, [user])
+  const [debts, loading] = useUserCollection(user, 'debts', sortByName, 'Debts')
 
   const value = useMemo(
     () => ({

@@ -16,7 +16,7 @@ review before saving.
 - **Firebase services:** Auth (sign-in) and Firestore (categories,
   transactions, bills, goals, debts, settings). There is no Functions backend
   in the current app.
-- **Live URL (eventually):** budget.tylerbusick.com.
+- **Live URL:** budget.tylerbusick.com.
 
 ## Talking to the owner (read this first)
 

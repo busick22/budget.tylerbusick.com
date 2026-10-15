@@ -5,47 +5,25 @@
 // Firestore: users/{uid}/categories/{id} →
 //   { name, limitCents (0 = just track), color (palette key), kind, createdAt }
 
-import { createContext, useContext, useEffect, useMemo, useState } from 'react'
+import { createContext, useContext, useMemo } from 'react'
 import {
   addDoc,
   collection,
   deleteDoc,
   doc,
-  onSnapshot,
   serverTimestamp,
   updateDoc,
 } from 'firebase/firestore'
 import { db } from '../firebase.js'
 import { useAuth } from './AuthContext.jsx'
+import { useUserCollection } from './useUserCollection.js'
 
 const CategoriesContext = createContext(null)
+const sortByName = (a, b) => a.name.localeCompare(b.name)
 
 export function CategoriesProvider({ children }) {
   const { user } = useAuth()
-  const [categories, setCategories] = useState([])
-  const [loading, setLoading] = useState(true)
-
-  useEffect(() => {
-    if (!user) {
-      setCategories([])
-      setLoading(true)
-      return undefined
-    }
-    const ref = collection(db, 'users', user.uid, 'categories')
-    return onSnapshot(
-      ref,
-      (snap) => {
-        const next = snap.docs.map((d) => ({ id: d.id, ...d.data() }))
-        next.sort((a, b) => a.name.localeCompare(b.name))
-        setCategories(next)
-        setLoading(false)
-      },
-      (err) => {
-        console.error('Categories listener failed:', err)
-        setLoading(false)
-      },
-    )
-  }, [user])
+  const [categories, loading] = useUserCollection(user, 'categories', sortByName, 'Categories')
 
   // A category with no `kind` predates income support → treat as expense.
   const expenseCategories = useMemo(
